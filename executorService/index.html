@@ -1,0 +1,145 @@
+<!DOCTYPE html> <!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]--> <!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8"><![endif]--> <!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9"><![endif]--> <!--[if gt IE 8]><!--> <html class="no-js"><!--<![endif]--> <head> <meta charset="UTF-8"> <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"> <meta http-equiv=X-UA-Compatible content="IE=edge,chrome=1"> <title>浅析ThreadPoolExecutor &#8211; 轶 & 霄</title> <meta name="description" content="我们的小窝"> <meta name="keywords" content="ExecutorService, 多线程"> <!-- Twitter Cards --> <meta name="twitter:card" content="summary"> <meta name="twitter:image" content="//justice-love.com/assets/img/logo.png"> <meta name="twitter:title" content="浅析ThreadPoolExecutor"> <meta name="twitter:description" content="简单介绍多线程中ThreadPoolExecutor使用"> <!-- Open Graph --> <meta property="og:locale" content="zh_CN"> <meta property="og:type" content="article"> <meta property="og:title" content="浅析ThreadPoolExecutor"> <meta property="og:description" content="简单介绍多线程中ThreadPoolExecutor使用"> <meta property="og:url" content="//justice-love.com/executorService/"> <meta property="og:site_name" content="轶 & 霄"> <meta property="og:image" content="//justice-love.com/assets/img/logo.png"> <link rel="canonical" href="//justice-love.com/executorService/"> <link href="//justice-love.com/feed.xml" type="application/atom+xml" rel="alternate" title="轶 & 霄 Feed"> <!-- Handheld --> <meta name="HandheldFriendly" content="True"> <meta name="MobileOptimized" content="320"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- CSS --> <link rel="stylesheet" href="//justice-love.com/assets/css/main.css"> <link rel="stylesheet" href="//justice-love.com/assets/css/share.min.css"> <!-- JS --> <script src="//justice-love.com/assets/js/modernizr-3.3.1.custom.min.js"></script> <!-- Favicons --> <link rel="apple-touch-icon" href="//justice-love.com/assets/img/favicons/apple-icon-precomposed.png"> <link rel="apple-touch-icon" sizes="72x72" href="//justice-love.com/assets/img/favicons/apple-icon-72x72.png"> <link rel="apple-touch-icon" sizes="114x114" href="//justice-love.com/assets/img/favicons/apple-icon-114x114.png"> <link rel="apple-touch-icon" sizes="144x144" href="//justice-love.com/assets/img/favicons/apple-icon-144x144.png"> <link rel="shortcut icon" type="image/png" href="//justice-love.com/favicon.png" /> <link rel="shortcut icon" href="//justice-love.com/favicon.ico" /> <!-- video --> <!-- Background Image --> <style type="text/css">body {background-image:url(https://cdn.justice-love.com/image/jpg/bjtp1.jpg); background-repeat: no-repeat; background-size: cover; }</style> <!-- Post Feature Image --> <script> var _hmt = _hmt || []; (function() { var hm = document.createElement("script"); hm.src = "https://hm.baidu.com/hm.js?b8fa0aab7976f4bd13b1648e04c7243f"; var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(hm, s); })(); </script> </head> <body> <nav id="dl-menu" class="dl-menuwrapper" role="navigation"> <button class="dl-trigger">Open Menu</button> <ul class="dl-menu"> <li><a href="//justice-love.com/">Home</a></li> <li> <a href="#">Articles</a> <ul class="dl-submenu"> <li><a href="//justice-love.com/posts/">日志</a></li> <li><a href="//justice-love.com/yan/">妍小言</a></li> <li><a href="//justice-love.com/shu/">舒小书</a></li> <li><a href="//justice-love.com/haoran/">浩然说</a></li> <li><a href="//justice-love.com/life/">生活日记</a></li> </ul> </li> <li><a href="//justice-love.com/tags/" >All Tags</a></li> </ul><!-- /.dl-menu --> </nav><!-- /.dl-menuwrapper --> <!-- Header --> <header class="header" role="banner"> <div class="wrapper-page animated fadeIn"> <div class="content"> <div class="post-title "> <h1>浅析ThreadPoolExecutor</h1> <h4>04 May 2017</h4> <p class="reading-time"> <i class="fa fa-clock-o"></i> Reading time ~3 minutes </p><!-- /.entry-reading-time --> <a class="btn zoombtn" href="//justice-love.com/posts/"> <i class="fa fa-chevron-left"></i> </a> </div> <div style="font-size: 15px"> <h3 id="jdk默认提供的三种threadpoolexecutor">JDK默认提供的三种ThreadPoolExecutor</h3> <ul> <li><strong>FixedThreadPool</strong></li> </ul> <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kd">public</span> <span class="kd">static</span> <span class="nc">ExecutorService</span> <span class="nf">newFixedThreadPool</span><span class="o">(</span><span class="kt">int</span> <span class="n">nThreads</span><span class="o">,</span> <span class="nc">ThreadFactory</span> <span class="n">threadFactory</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="nf">ThreadPoolExecutor</span><span class="o">(</span><span class="n">nThreads</span><span class="o">,</span> <span class="n">nThreads</span><span class="o">,</span>
+                                      <span class="mi">0L</span><span class="o">,</span> <span class="nc">TimeUnit</span><span class="o">.</span><span class="na">MILLISECONDS</span><span class="o">,</span>
+                                      <span class="k">new</span> <span class="nc">LinkedBlockingQueue</span><span class="o">&lt;</span><span class="nc">Runnable</span><span class="o">&gt;(),</span>
+                                      <span class="n">threadFactory</span><span class="o">);</span>
+</code></pre></div></div> <p>线程池中核心线程数和最大允许的线程数相同，即线程池中的线程空闲后不会被回收，除非<code class="language-plaintext highlighter-rouge">allowCoreThreadTimeOut</code>被设置成<code class="language-plaintext highlighter-rouge">true</code>.</p> <ul> <li><strong>SingleThreadPool</strong></li> </ul> <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kd">public</span> <span class="kd">static</span> <span class="nc">ExecutorService</span> <span class="nf">newSingleThreadExecutor</span><span class="o">(</span><span class="nc">ThreadFactory</span> <span class="n">threadFactory</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="nf">FinalizableDelegatedExecutorService</span>
+            <span class="o">(</span><span class="k">new</span> <span class="nc">ThreadPoolExecutor</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span>
+                                    <span class="mi">0L</span><span class="o">,</span> <span class="nc">TimeUnit</span><span class="o">.</span><span class="na">MILLISECONDS</span><span class="o">,</span>
+                                    <span class="k">new</span> <span class="nc">LinkedBlockingQueue</span><span class="o">&lt;</span><span class="nc">Runnable</span><span class="o">&gt;(),</span>
+                                    <span class="n">threadFactory</span><span class="o">));</span>
+    <span class="o">}</span>
+</code></pre></div></div> <p>线程池中的线程数最多保持一个.</p> <p>和<code class="language-plaintext highlighter-rouge">FixedThreadPool(1)</code>的区别为FixedThreadPool为ThreadPoolExecutor对象，可以调用ThreadPoolExecutor的一些方法对其进行配置。而SingleThreadPool返回的是ExecutorService的简单封装，仅暴露了ExecutorService的执行方法，无法进行配置。</p> <ul> <li> <p><strong>CachedThreadPool</strong></p> <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kd">public</span> <span class="kd">static</span> <span class="nc">ExecutorService</span> <span class="nf">newCachedThreadPool</span><span class="o">(</span><span class="nc">ThreadFactory</span> <span class="n">threadFactory</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="nf">ThreadPoolExecutor</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="nc">Integer</span><span class="o">.</span><span class="na">MAX_VALUE</span><span class="o">,</span>
+                                      <span class="mi">60L</span><span class="o">,</span> <span class="nc">TimeUnit</span><span class="o">.</span><span class="na">SECONDS</span><span class="o">,</span>
+                                      <span class="k">new</span> <span class="nc">SynchronousQueue</span><span class="o">&lt;</span><span class="nc">Runnable</span><span class="o">&gt;(),</span>
+                                      <span class="n">threadFactory</span><span class="o">);</span>
+    <span class="o">}</span>
+</code></pre></div> </div> <p>​</p> </li> </ul> <p>一个无限容量的连接池，并且空闲的线程会缓存60S。</p> <h3 id="threadpoolexecutor简单解析">ThreadPoolExecutor简单解析</h3> <ul> <li> <p>构造函数</p> <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kd">public</span> <span class="nf">ThreadPoolExecutor</span><span class="o">(</span><span class="kt">int</span> <span class="n">corePoolSize</span><span class="o">,</span>
+                              <span class="kt">int</span> <span class="n">maximumPoolSize</span><span class="o">,</span>
+                              <span class="kt">long</span> <span class="n">keepAliveTime</span><span class="o">,</span>
+                              <span class="nc">TimeUnit</span> <span class="n">unit</span><span class="o">,</span>
+                              <span class="nc">BlockingQueue</span><span class="o">&lt;</span><span class="nc">Runnable</span><span class="o">&gt;</span> <span class="n">workQueue</span><span class="o">,</span>
+                              <span class="nc">ThreadFactory</span> <span class="n">threadFactory</span><span class="o">,</span>
+                              <span class="nc">RejectedExecutionHandler</span> <span class="n">handler</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">corePoolSize</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">||</span>
+            <span class="n">maximumPoolSize</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="o">||</span>
+            <span class="n">maximumPoolSize</span> <span class="o">&lt;</span> <span class="n">corePoolSize</span> <span class="o">||</span>
+            <span class="n">keepAliveTime</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="o">)</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalArgumentException</span><span class="o">();</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">workQueue</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="n">threadFactory</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="n">handler</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">NullPointerException</span><span class="o">();</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">corePoolSize</span> <span class="o">=</span> <span class="n">corePoolSize</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">maximumPoolSize</span> <span class="o">=</span> <span class="n">maximumPoolSize</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">workQueue</span> <span class="o">=</span> <span class="n">workQueue</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">keepAliveTime</span> <span class="o">=</span> <span class="n">unit</span><span class="o">.</span><span class="na">toNanos</span><span class="o">(</span><span class="n">keepAliveTime</span><span class="o">);</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">threadFactory</span> <span class="o">=</span> <span class="n">threadFactory</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">handler</span> <span class="o">=</span> <span class="n">handler</span><span class="o">;</span>
+    <span class="o">}</span>
+</code></pre></div> </div> </li> <li> <p>参数解析</p> <ul> <li>corePoolSize：核心线程池大小，线程数如果不超过该值，线程会默认保留，就算线程处于空闲状态。</li> <li>maximumPoolSize：线程池的最大容量，线程数的重量不能操过该值。</li> <li>keepAliveTime：空闲线程最长保留时间。</li> <li>unit：时间单位。</li> <li>workQueue：接收请求的队列。</li> <li>threadFactory：线程工厂。</li> <li>handler：由于超出线程范围和队列容量而使执行被阻塞时所使用的处理程序。</li> </ul> </li> <li> <p>部分参数意义</p> <ul> <li>当线程数不超过核心线程池大小时，创建的线程默认都将被保留下来，就算线程为空闲状态。</li> <li>当线程数超过核心线程池大小，而没超过最大线程池大小时，空闲的线程会等待<code class="language-plaintext highlighter-rouge">keepAliveTime</code>时长后被销毁。</li> </ul> </li> <li> <p>Future简单解析</p> <ul> <li><code class="language-plaintext highlighter-rouge">future.get()</code>将会被阻塞知道获取数据，当任务被取消，任务抛出异常，任务被中断时均会抛出异常。</li> </ul> </li> <li> <p>线程池增加新处理线程（woker）的时机</p> <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">void</span> <span class="nf">execute</span><span class="o">(</span><span class="nc">Runnable</span> <span class="n">command</span><span class="o">)</span> <span class="o">{</span>
+  <span class="k">if</span> <span class="o">(</span><span class="n">command</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+      <span class="k">throw</span> <span class="k">new</span> <span class="nf">NullPointerException</span><span class="o">();</span>
+  <span class="cm">/*
+   * Proceed in 3 steps:
+   *
+   * 1. If fewer than corePoolSize threads are running, try to
+   * start a new thread with the given command as its first
+   * task.  The call to addWorker atomically checks runState and
+   * workerCount, and so prevents false alarms that would add
+   * threads when it shouldn't, by returning false.
+   *
+   * 2. If a task can be successfully queued, then we still need
+   * to double-check whether we should have added a thread
+   * (because existing ones died since last checking) or that
+   * the pool shut down since entry into this method. So we
+   * recheck state and if necessary roll back the enqueuing if
+   * stopped, or start a new thread if there are none.
+   *
+   * 3. If we cannot queue task, then we try to add a new
+   * thread.  If it fails, we know we are shut down or saturated
+   * and so reject the task.
+   */</span>
+  <span class="kt">int</span> <span class="n">c</span> <span class="o">=</span> <span class="n">ctl</span><span class="o">.</span><span class="na">get</span><span class="o">();</span>
+  <span class="k">if</span> <span class="o">(</span><span class="n">workerCountOf</span><span class="o">(</span><span class="n">c</span><span class="o">)</span> <span class="o">&lt;</span> <span class="n">corePoolSize</span><span class="o">)</span> <span class="o">{</span>
+      <span class="k">if</span> <span class="o">(</span><span class="n">addWorker</span><span class="o">(</span><span class="n">command</span><span class="o">,</span> <span class="kc">true</span><span class="o">))</span>
+          <span class="k">return</span><span class="o">;</span>
+      <span class="n">c</span> <span class="o">=</span> <span class="n">ctl</span><span class="o">.</span><span class="na">get</span><span class="o">();</span>
+  <span class="o">}</span>
+  <span class="k">if</span> <span class="o">(</span><span class="n">isRunning</span><span class="o">(</span><span class="n">c</span><span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="n">workQueue</span><span class="o">.</span><span class="na">offer</span><span class="o">(</span><span class="n">command</span><span class="o">))</span> <span class="o">{</span>
+      <span class="kt">int</span> <span class="n">recheck</span> <span class="o">=</span> <span class="n">ctl</span><span class="o">.</span><span class="na">get</span><span class="o">();</span>
+      <span class="k">if</span> <span class="o">(!</span> <span class="n">isRunning</span><span class="o">(</span><span class="n">recheck</span><span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="n">remove</span><span class="o">(</span><span class="n">command</span><span class="o">))</span>
+          <span class="n">reject</span><span class="o">(</span><span class="n">command</span><span class="o">);</span>
+      <span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="n">workerCountOf</span><span class="o">(</span><span class="n">recheck</span><span class="o">)</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span>
+          <span class="n">addWorker</span><span class="o">(</span><span class="kc">null</span><span class="o">,</span> <span class="kc">false</span><span class="o">);</span>
+  <span class="o">}</span>
+  <span class="k">else</span> <span class="nf">if</span> <span class="o">(!</span><span class="n">addWorker</span><span class="o">(</span><span class="n">command</span><span class="o">,</span> <span class="kc">false</span><span class="o">))</span>
+      <span class="n">reject</span><span class="o">(</span><span class="n">command</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div> </div> <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="kd">private</span> <span class="kt">boolean</span> <span class="nf">addWorker</span><span class="o">(</span><span class="nc">Runnable</span> <span class="n">firstTask</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">core</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nl">retry:</span>
+        <span class="k">for</span> <span class="o">(;;)</span> <span class="o">{</span>
+            <span class="kt">int</span> <span class="n">c</span> <span class="o">=</span> <span class="n">ctl</span><span class="o">.</span><span class="na">get</span><span class="o">();</span>
+            <span class="kt">int</span> <span class="n">rs</span> <span class="o">=</span> <span class="n">runStateOf</span><span class="o">(</span><span class="n">c</span><span class="o">);</span>
+  
+            <span class="c1">// Check if queue empty only if necessary.</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">rs</span> <span class="o">&gt;=</span> <span class="no">SHUTDOWN</span> <span class="o">&amp;&amp;</span>
+                <span class="o">!</span> <span class="o">(</span><span class="n">rs</span> <span class="o">==</span> <span class="no">SHUTDOWN</span> <span class="o">&amp;&amp;</span>
+                   <span class="n">firstTask</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span>
+                   <span class="o">!</span> <span class="n">workQueue</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">()))</span>
+                <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+  
+            <span class="k">for</span> <span class="o">(;;)</span> <span class="o">{</span>
+                <span class="kt">int</span> <span class="n">wc</span> <span class="o">=</span> <span class="n">workerCountOf</span><span class="o">(</span><span class="n">c</span><span class="o">);</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">wc</span> <span class="o">&gt;=</span> <span class="no">CAPACITY</span> <span class="o">||</span>
+                    <span class="n">wc</span> <span class="o">&gt;=</span> <span class="o">(</span><span class="n">core</span> <span class="o">?</span> <span class="n">corePoolSize</span> <span class="o">:</span> <span class="n">maximumPoolSize</span><span class="o">))</span>
+                    <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">compareAndIncrementWorkerCount</span><span class="o">(</span><span class="n">c</span><span class="o">))</span>
+                    <span class="k">break</span> <span class="n">retry</span><span class="o">;</span>
+                <span class="n">c</span> <span class="o">=</span> <span class="n">ctl</span><span class="o">.</span><span class="na">get</span><span class="o">();</span>  <span class="c1">// Re-read ctl</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">runStateOf</span><span class="o">(</span><span class="n">c</span><span class="o">)</span> <span class="o">!=</span> <span class="n">rs</span><span class="o">)</span>
+                    <span class="k">continue</span> <span class="n">retry</span><span class="o">;</span>
+                <span class="c1">// else CAS failed due to workerCount change; retry inner loop</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+  
+        <span class="kt">boolean</span> <span class="n">workerStarted</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="kt">boolean</span> <span class="n">workerAdded</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="nc">Worker</span> <span class="n">w</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Worker</span><span class="o">(</span><span class="n">firstTask</span><span class="o">);</span>
+            <span class="kd">final</span> <span class="nc">Thread</span> <span class="n">t</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="na">thread</span><span class="o">;</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">t</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="kd">final</span> <span class="nc">ReentrantLock</span> <span class="n">mainLock</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">mainLock</span><span class="o">;</span>
+                <span class="n">mainLock</span><span class="o">.</span><span class="na">lock</span><span class="o">();</span>
+                <span class="k">try</span> <span class="o">{</span>
+                    <span class="c1">// Recheck while holding lock.</span>
+                    <span class="c1">// Back out on ThreadFactory failure or if</span>
+                    <span class="c1">// shut down before lock acquired.</span>
+                    <span class="kt">int</span> <span class="n">rs</span> <span class="o">=</span> <span class="n">runStateOf</span><span class="o">(</span><span class="n">ctl</span><span class="o">.</span><span class="na">get</span><span class="o">());</span>
+  
+                    <span class="k">if</span> <span class="o">(</span><span class="n">rs</span> <span class="o">&lt;</span> <span class="no">SHUTDOWN</span> <span class="o">||</span>
+                        <span class="o">(</span><span class="n">rs</span> <span class="o">==</span> <span class="no">SHUTDOWN</span> <span class="o">&amp;&amp;</span> <span class="n">firstTask</span> <span class="o">==</span> <span class="kc">null</span><span class="o">))</span> <span class="o">{</span>
+                        <span class="k">if</span> <span class="o">(</span><span class="n">t</span><span class="o">.</span><span class="na">isAlive</span><span class="o">())</span> <span class="c1">// precheck that t is startable</span>
+                            <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalThreadStateException</span><span class="o">();</span>
+                        <span class="n">workers</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">w</span><span class="o">);</span>
+                        <span class="kt">int</span> <span class="n">s</span> <span class="o">=</span> <span class="n">workers</span><span class="o">.</span><span class="na">size</span><span class="o">();</span>
+                        <span class="k">if</span> <span class="o">(</span><span class="n">s</span> <span class="o">&gt;</span> <span class="n">largestPoolSize</span><span class="o">)</span>
+                            <span class="n">largestPoolSize</span> <span class="o">=</span> <span class="n">s</span><span class="o">;</span>
+                        <span class="n">workerAdded</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+                    <span class="o">}</span>
+                <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+                    <span class="n">mainLock</span><span class="o">.</span><span class="na">unlock</span><span class="o">();</span>
+                <span class="o">}</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">workerAdded</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="n">t</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+                    <span class="n">workerStarted</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+            <span class="k">if</span> <span class="o">(!</span> <span class="n">workerStarted</span><span class="o">)</span>
+                <span class="n">addWorkerFailed</span><span class="o">(</span><span class="n">w</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">workerStarted</span><span class="o">;</span>
+    <span class="o">}</span>
+</code></pre></div> </div> </li> <li>通过阅读<code class="language-plaintext highlighter-rouge">java.util.concurrent.ThreadPoolExecutor#execute</code>方法可以发现，在当前线程数小于核心线程数时，默认增加一个执行线程。在执行线程数为0时，直接增加一个执行线程。其余则仅在command插入任务队列失败后时，会尝试新增执行线程。</li> <li>补充：大部分情况下execute()方法仅会执行<code class="language-plaintext highlighter-rouge">isRunning(c) &amp;&amp; workQueue.offer(command)</code>后就返回，即command插入任务队列成功后即返回。</li> </ul> </div> <div class="entry-meta"> <br> <hr> <script src="https://apps.bdimg.com/libs/jquery/1.8.2/jquery.js"></script> <script src="//justice-love.com/assets/js/jquery.share.min.js"></script> <span class="entry-tags"><a href="//justice-love.com/tags/#ExecutorService" title="Pages tagged ExecutorService" class="tag"><span class="term">ExecutorService</span></a><a href="//justice-love.com/tags/#多线程" title="Pages tagged 多线程" class="tag"><span class="term">多线程</span></a></span> <div id="share-china"></div> <div style="clear:both"></div> <script> $('#share-china').share({sites: ['qzone', 'weibo','wechat', 'facebook', 'twitter']}); </script> </div> </div> </div> <section id="disqus_thread" class="animated fadeInUp"> <div id="gitalk-container"></div> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css"> <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script> <script type="text/javascript"> var id = document.URL; if (id.indexOf('?') > 0) { id = id.substr(0, id.indexOf('?')); } const gitalk = new Gitalk({ clientID: '94ea015a2463191dc163', clientSecret: '5fba2b9dc7bf84584dd7a7d8d070e3c0e9d260bf', accessToken: '5facc6f1b9b0e6f0e66e986ba01423102f89d5c7', repo: 'blog-comments', owner: 'Justice-love', admin: ['Justice-love'], distractionFreeMode: false, labels: ['comments'], title: '浅析ThreadPoolExecutor', id: id, proxy: 'https://proxy.justice-love.com/https://github.com/login/oauth/access_token' }); gitalk.render('gitalk-container'); </script> </section> </header> <!-- JS --> <script src="//justice-love.com/assets/js/jquery-3.6.0.min.js"></script> <script src="//justice-love.com/assets/js/jquery.dlmenu.min.js"></script> <script src="//justice-love.com/assets/js/jquery.goup.min.js"></script> <script src="//justice-love.com/assets/js/jquery.magnific-popup.min.js"></script> <script src="//justice-love.com/assets/js/jquery.fitvid.min.js"></script> <script src="//justice-love.com/assets/js/scripts.js"></script> <script src="//justice-love.com/assets/js/clipboard.min.js"></script> <!-- MathJax --> <script async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script> </body> </html>

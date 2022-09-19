@@ -1,0 +1,123 @@
+<!DOCTYPE html> <!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]--> <!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8"><![endif]--> <!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9"><![endif]--> <!--[if gt IE 8]><!--> <html class="no-js"><!--<![endif]--> <head> <meta charset="UTF-8"> <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"> <meta http-equiv=X-UA-Compatible content="IE=edge,chrome=1"> <title>RBAC &#8211; 轶 & 霄</title> <meta name="description" content="我们的小窝"> <meta name="keywords" content="RBAC, 权限"> <!-- Twitter Cards --> <meta name="twitter:card" content="summary"> <meta name="twitter:image" content="//justice-love.com/assets/img/logo.png"> <meta name="twitter:title" content="RBAC"> <meta name="twitter:description" content="RBAC权限管理基本模型理解以及一个github上得RBAC项目学习"> <!-- Open Graph --> <meta property="og:locale" content="zh_CN"> <meta property="og:type" content="article"> <meta property="og:title" content="RBAC"> <meta property="og:description" content="RBAC权限管理基本模型理解以及一个github上得RBAC项目学习"> <meta property="og:url" content="//justice-love.com/RBAC/"> <meta property="og:site_name" content="轶 & 霄"> <meta property="og:image" content="//justice-love.com/assets/img/logo.png"> <link rel="canonical" href="//justice-love.com/RBAC/"> <link href="//justice-love.com/feed.xml" type="application/atom+xml" rel="alternate" title="轶 & 霄 Feed"> <!-- Handheld --> <meta name="HandheldFriendly" content="True"> <meta name="MobileOptimized" content="320"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- CSS --> <link rel="stylesheet" href="//justice-love.com/assets/css/main.css"> <link rel="stylesheet" href="//justice-love.com/assets/css/share.min.css"> <!-- JS --> <script src="//justice-love.com/assets/js/modernizr-3.3.1.custom.min.js"></script> <!-- Favicons --> <link rel="apple-touch-icon" href="//justice-love.com/assets/img/favicons/apple-icon-precomposed.png"> <link rel="apple-touch-icon" sizes="72x72" href="//justice-love.com/assets/img/favicons/apple-icon-72x72.png"> <link rel="apple-touch-icon" sizes="114x114" href="//justice-love.com/assets/img/favicons/apple-icon-114x114.png"> <link rel="apple-touch-icon" sizes="144x144" href="//justice-love.com/assets/img/favicons/apple-icon-144x144.png"> <link rel="shortcut icon" type="image/png" href="//justice-love.com/favicon.png" /> <link rel="shortcut icon" href="//justice-love.com/favicon.ico" /> <!-- video --> <!-- Background Image --> <style type="text/css">body {background-image:url(https://cdn.justice-love.com/image/jpg/bjtp1.jpg); background-repeat: no-repeat; background-size: cover; }</style> <!-- Post Feature Image --> <script> var _hmt = _hmt || []; (function() { var hm = document.createElement("script"); hm.src = "https://hm.baidu.com/hm.js?b8fa0aab7976f4bd13b1648e04c7243f"; var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(hm, s); })(); </script> </head> <body> <nav id="dl-menu" class="dl-menuwrapper" role="navigation"> <button class="dl-trigger">Open Menu</button> <ul class="dl-menu"> <li><a href="//justice-love.com/">Home</a></li> <li> <a href="#">Articles</a> <ul class="dl-submenu"> <li><a href="//justice-love.com/posts/">日志</a></li> <li><a href="//justice-love.com/yan/">妍小言</a></li> <li><a href="//justice-love.com/shu/">舒小书</a></li> <li><a href="//justice-love.com/haoran/">浩然说</a></li> <li><a href="//justice-love.com/life/">生活日记</a></li> </ul> </li> <li><a href="//justice-love.com/tags/">All Tags</a></li> </ul>
+<!-- /.dl-menu --> </nav><!-- /.dl-menuwrapper --> <!-- Header --> <header class="header" role="banner"> <div class="wrapper-page animated fadeIn"> <div class="content"> <div class="post-title "> <h1>RBAC</h1> <h4>25 Jan 2017</h4> <p class="reading-time"> <i class="fa fa-clock-o"></i> Reading time ~2 minutes </p>
+<!-- /.entry-reading-time --> <a class="btn zoombtn" href="//justice-love.com/posts/"> <i class="fa fa-chevron-left"></i> </a> </div> <div style="font-size: 15px"> <h3 id="rbac0">RBAC0</h3> <ul> <li>基本的权限角色绑定并为用户分配角色。</li> <li>会话节点，存储一个用户当前会话所激活的权限信息。</li> </ul> <h3 id="rbac1">RBAC1</h3> <ul> <li>基于RBAC0权限管理规范</li> <li>基本：定义角色和角色之间可以存在继承关系，并且允许多继承。</li> <li>扩展：角色和角色间的继承关系是一个树形结构。</li> </ul> <h3 id="rbac2">RBAC2</h3> <ul> <li>基于RBAC0权限管理规范</li> <li>静态职责隔离 <ul> <li>角色之间存在互斥关系，一个用户不能被同时分配互斥的角色</li> <li>一个角色可授予的用户数有限（逻辑取反亦有效）</li> <li>授予角色可有先决条件限制</li> </ul> </li> <li>动态职责分离 <ul> <li>动态决定一个会话该激活哪个角色。</li> </ul> </li> </ul> <h3 id="rbac3">RBAC3</h3> <ul> <li>RBAC1 + RBAC2</li> </ul> <h3 id="ecommerce-rbac">eCommerce-RBAC</h3> <ul> <li>地址 <ul> <li><a href="https://github.com/rcosnita/eCommerce-RBAC">https://github.com/rcosnita/eCommerce-RBAC</a></li> </ul> </li> <li>特点</li> <li>简单实现了RBAC3特性</li> <li> <p>数据结构清晰,见下方ER图<img src="http://cdn.justice-love.com/image/png/rbac-erd.png" alt="rbac-erd"></p> </li> <li>采用HTTP API，各个模块API功能比较单一且功能比较全面</li> </ul> <figure class="highlight"><pre><code class="language-java" data-lang="java">  
+<span class="nd">@Path</span><span class="o">(</span><span class="s">"/"</span><span class="o">)</span>
+<span class="nd">@Produces</span><span class="o">(</span><span class="nc">MediaType</span><span class="o">.</span><span class="na">APPLICATION_JSON</span><span class="o">)</span>
+<span class="nd">@Consumes</span><span class="o">(</span><span class="nc">MediaType</span><span class="o">.</span><span class="na">APPLICATION_JSON</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">RbacUsersManager</span> <span class="o">{</span>
+	<span class="cm">/**
+	 * Method used to obtain all currently defined users.
+	 *
+	 * @return
+	 */</span>
+	<span class="nd">@Path</span><span class="o">(</span><span class="s">"/"</span><span class="o">)</span>
+	<span class="nd">@GET</span>
+	<span class="kd">public</span> <span class="nc">Users</span> <span class="nf">loadAllUsers</span><span class="o">();</span>
+
+	<span class="cm">/**
+	 * Method used to obtain a slice of users based on a given page size and a start record.
+	 *
+	 * @param pageSize This is the page size we want to use.
+	 * @param startRecord This is the start record we want to use.
+	 * @return
+	 */</span>
+	<span class="nd">@Path</span><span class="o">(</span><span class="s">"/{startRecord}/{pageSize}/"</span><span class="o">)</span>
+	<span class="nd">@GET</span>
+	<span class="kd">public</span> <span class="nc">Users</span> <span class="nf">loadAllUsers</span><span class="o">(</span>
+			<span class="nd">@PathParam</span><span class="o">(</span><span class="s">"pageSize"</span><span class="o">)</span> <span class="kt">int</span> <span class="n">pageSize</span><span class="o">,</span>
+			<span class="nd">@PathParam</span><span class="o">(</span><span class="s">"startRecord"</span><span class="o">)</span> <span class="kt">int</span> <span class="n">startRecord</span><span class="o">);</span>
+
+	<span class="cm">/**
+	 * Method used to get an user from RBAC system by id.
+	 *
+	 * @param userId
+	 * @return
+	 */</span>
+	<span class="nd">@Path</span><span class="o">(</span><span class="s">"/{userId}"</span><span class="o">)</span>
+	<span class="nd">@GET</span>
+	<span class="kd">public</span> <span class="nc">User</span> <span class="nf">loadUserById</span><span class="o">(</span><span class="nd">@PathParam</span><span class="o">(</span><span class="s">"userId"</span><span class="o">)</span> <span class="nc">Integer</span> <span class="n">userId</span><span class="o">);</span>
+
+	<span class="cm">/**
+	 * Method used to load all user roles.
+	 *
+	 * @param userId User unique identifier.
+	 * @return
+	 */</span>
+	<span class="nd">@Path</span><span class="o">(</span><span class="s">"/{userId}/roles"</span><span class="o">)</span>
+	<span class="nd">@GET</span>
+	<span class="kd">public</span> <span class="nc">Roles</span> <span class="nf">loadUserRoles</span><span class="o">(</span><span class="nd">@PathParam</span><span class="o">(</span><span class="s">"userId"</span><span class="o">)</span> <span class="nc">Integer</span> <span class="n">userId</span><span class="o">);</span>
+
+	<span class="cm">/**
+	 * Method used to load all user permissions. Do not confuse it
+	 * with activated permissions.
+	 *
+	 * @param userId User unique identifier.
+	 * @return
+	 */</span>
+	<span class="nd">@Path</span><span class="o">(</span><span class="s">"/{userId}/permissions"</span><span class="o">)</span>
+	<span class="nd">@GET</span>
+	<span class="kd">public</span> <span class="nc">Permissions</span> <span class="nf">loadUserPermissions</span><span class="o">(</span><span class="nd">@PathParam</span><span class="o">(</span><span class="s">"userId"</span><span class="o">)</span> <span class="nc">Integer</span> <span class="n">userId</span><span class="o">);</span>
+
+	<span class="cm">/**
+	 * Method used to load all operations a user is allowed to execute
+	 * on a specified object.
+	 *
+	 * @param userId User unique identifier.
+	 * @param objectId Object unique identifier.
+	 * @return
+	 */</span>
+	<span class="nd">@Path</span><span class="o">(</span><span class="s">"/{userId}/operations/{objectId}"</span><span class="o">)</span>
+	<span class="nd">@GET</span>
+	<span class="kd">public</span> <span class="nc">Operations</span> <span class="nf">loadUserOperationsForObject</span><span class="o">(</span>
+			<span class="nd">@PathParam</span><span class="o">(</span><span class="s">"userId"</span><span class="o">)</span> <span class="nc">Integer</span> <span class="n">userId</span><span class="o">,</span>
+			<span class="nd">@PathParam</span><span class="o">(</span><span class="s">"objectId"</span><span class="o">)</span> <span class="nc">Integer</span> <span class="n">objectId</span><span class="o">);</span>
+
+	<span class="cm">/**
+	 * Method used to create a new user.
+	 *
+	 * @param userId User unique identifier.
+	 * @param user User object.
+	 */</span>
+	<span class="nd">@Path</span><span class="o">(</span><span class="s">"/{userId}"</span><span class="o">)</span>
+	<span class="nd">@POST</span>
+	<span class="nd">@Consumes</span><span class="o">(</span><span class="s">"application/json"</span><span class="o">)</span>
+	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">createUser</span><span class="o">(</span><span class="nd">@PathParam</span><span class="o">(</span><span class="s">"userId"</span><span class="o">)</span> <span class="nc">Integer</span> <span class="n">userId</span><span class="o">,</span> <span class="nc">User</span> <span class="n">user</span><span class="o">);</span>
+
+	<span class="cm">/**
+	 * Method used to update an existing user.
+	 *
+	 * @param userId User unique identifier.
+	 * @param user User instance that contains all new values that should be updated.
+	 */</span>
+	<span class="nd">@Path</span><span class="o">(</span><span class="s">"/{userId}"</span><span class="o">)</span>
+	<span class="nd">@PUT</span>
+	<span class="nd">@Consumes</span><span class="o">(</span><span class="s">"application/json"</span><span class="o">)</span>
+	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">updateUser</span><span class="o">(</span><span class="nd">@PathParam</span><span class="o">(</span><span class="s">"userId"</span><span class="o">)</span> <span class="nc">Integer</span> <span class="n">userId</span><span class="o">,</span> <span class="nc">User</span> <span class="n">user</span><span class="o">);</span>
+
+	<span class="cm">/**
+	 * Method used to delete an existing user.
+	 *
+	 * @param userId User unique identifier.
+	 */</span>
+	<span class="nd">@Path</span><span class="o">(</span><span class="s">"/{userId}"</span><span class="o">)</span>
+	<span class="nd">@DELETE</span>
+	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">deleteUser</span><span class="o">(</span><span class="nd">@PathParam</span><span class="o">(</span><span class="s">"userId"</span><span class="o">)</span> <span class="nc">Integer</span> <span class="n">userId</span><span class="o">);</span>
+
+	<span class="cm">/**
+	 * Method used to remove user from all roles he is currently assigned to.
+	 *
+	 * @param userId User unique identifier.
+	 */</span>
+	<span class="nd">@Path</span><span class="o">(</span><span class="s">"/{userId}/roles"</span><span class="o">)</span>
+	<span class="nd">@DELETE</span>
+	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">deleteUserFromAllRoles</span><span class="o">(</span><span class="nd">@PathParam</span><span class="o">(</span><span class="s">"userId"</span><span class="o">)</span> <span class="nc">Integer</span> <span class="n">userId</span><span class="o">);</span>
+
+	<span class="cm">/**
+	 * Method used to stop all active sessions of an user.
+	 *
+	 * @param userId User unique identifier.
+	 */</span>
+	<span class="nd">@Path</span><span class="o">(</span><span class="s">"/{userId}/sessions"</span><span class="o">)</span>
+	<span class="nd">@DELETE</span>
+	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">deleteUserSessions</span><span class="o">(</span><span class="nd">@PathParam</span><span class="o">(</span><span class="s">"userId"</span><span class="o">)</span> <span class="nc">Integer</span> <span class="n">userId</span><span class="o">);</span>
+<span class="o">}</span></code></pre></figure> <ul> <li>不够完善的地方 <ul> <li>没有完善的鉴权机制以及鉴权方案</li> <li>仅有权限管理方案，没有权限分类方案。</li> </ul> </li> </ul> <h3 id="可借鉴的点">可借鉴的点</h3> <ul> <li>API接口功能单一</li> <li>角色继承（自下而上继承） <ul> <li>简化配置，下级拥有的权限上级默认拥有</li> </ul> </li> <li>session模块 <ul> <li>隔离user和role之间的直接关系，使得user登录期间可以动态决定他所激活的角色。</li> </ul> </li> <li>角色互斥 <ul> <li>互斥角色，我理解可以作为角色继承在实际应用场景的补充，因为角色继承不是绝对的。 <ul> <li>举例：物流经理角色 –&gt; 仓库管理员角色 –&gt; 守门人角色，即<code class="language-plaintext highlighter-rouge">物流经理角色</code>拥有<code class="language-plaintext highlighter-rouge">守门人角色</code>的权限。但实际生产中这是不必要的，所以可以将<code class="language-plaintext highlighter-rouge">物流经理角色</code>和<code class="language-plaintext highlighter-rouge">守门人角色</code>设置为互斥，从而让他无法继承。</li> </ul> </li> </ul> </li> </ul> </div> <div class="entry-meta"> <br> <hr> <script src="https://apps.bdimg.com/libs/jquery/1.8.2/jquery.js"></script> <script src="//justice-love.com/assets/js/jquery.share.min.js"></script> <span class="entry-tags"><a href="//justice-love.com/tags/#RBAC" title="Pages tagged RBAC" class="tag"><span class="term">RBAC</span></a><a href="//justice-love.com/tags/#%E6%9D%83%E9%99%90" title="Pages tagged 权限" class="tag"><span class="term">权限</span></a></span> <div id="share-china"></div> <div style="clear:both"></div> <script> $('#share-china').share({sites: ['qzone', 'weibo','wechat', 'facebook', 'twitter']}); </script> </div> </div> </div> <section id="disqus_thread" class="animated fadeInUp"> <div id="gitalk-container"></div> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css"> <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script> <script type="text/javascript"> var id = document.URL; if (id.indexOf('?') > 0) { id = id.substr(0, id.indexOf('?')); } const gitalk = new Gitalk({ clientID: '94ea015a2463191dc163', clientSecret: '5fba2b9dc7bf84584dd7a7d8d070e3c0e9d260bf', accessToken: '5facc6f1b9b0e6f0e66e986ba01423102f89d5c7', repo: 'blog-comments', owner: 'Justice-love', admin: ['Justice-love'], distractionFreeMode: false, labels: ['comments'], title: 'RBAC', id: id, proxy: 'https://proxy.justice-love.com/https://github.com/login/oauth/access_token' }); gitalk.render('gitalk-container'); </script> </section> </header> <!-- JS --> <script src="//justice-love.com/assets/js/jquery-3.6.0.min.js"></script> <script src="//justice-love.com/assets/js/jquery.dlmenu.min.js"></script> <script src="//justice-love.com/assets/js/jquery.goup.min.js"></script> <script src="//justice-love.com/assets/js/jquery.magnific-popup.min.js"></script> <script src="//justice-love.com/assets/js/jquery.fitvid.min.js"></script> <script src="//justice-love.com/assets/js/scripts.js"></script> <script src="//justice-love.com/assets/js/clipboard.min.js"></script> <!-- MathJax --> <script async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script> </body> </html>

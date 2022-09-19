@@ -1,0 +1,107 @@
+<!DOCTYPE html> <!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]--> <!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8"><![endif]--> <!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9"><![endif]--> <!--[if gt IE 8]><!--> <html class="no-js"><!--<![endif]--> <head> <meta charset="UTF-8"> <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"> <meta http-equiv=X-UA-Compatible content="IE=edge,chrome=1"> <title>Jekyll博客自动部署 &#8211; 轶 & 霄</title> <meta name="description" content="我们的小窝"> <meta name="keywords" content="GitHub, webhook, python"> <!-- Twitter Cards --> <meta name="twitter:card" content="summary"> <meta name="twitter:image" content="//justice-love.com/assets/img/logo.png"> <meta name="twitter:title" content="Jekyll博客自动部署"> <meta name="twitter:description" content="基于GitHub webhook实现Jekyll博客自动部署"> <!-- Open Graph --> <meta property="og:locale" content="zh_CN"> <meta property="og:type" content="article"> <meta property="og:title" content="Jekyll博客自动部署"> <meta property="og:description" content="基于GitHub webhook实现Jekyll博客自动部署"> <meta property="og:url" content="//justice-love.com/webhooks/"> <meta property="og:site_name" content="轶 & 霄"> <meta property="og:image" content="//justice-love.com/assets/img/logo.png"> <link rel="canonical" href="//justice-love.com/webhooks/"> <link href="//justice-love.com/feed.xml" type="application/atom+xml" rel="alternate" title="轶 & 霄 Feed"> <!-- Handheld --> <meta name="HandheldFriendly" content="True"> <meta name="MobileOptimized" content="320"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- CSS --> <link rel="stylesheet" href="//justice-love.com/assets/css/main.css"> <link rel="stylesheet" href="//justice-love.com/assets/css/share.min.css"> <!-- JS --> <script src="//justice-love.com/assets/js/modernizr-3.3.1.custom.min.js"></script> <!-- Favicons --> <link rel="apple-touch-icon" href="//justice-love.com/assets/img/favicons/apple-icon-precomposed.png"> <link rel="apple-touch-icon" sizes="72x72" href="//justice-love.com/assets/img/favicons/apple-icon-72x72.png"> <link rel="apple-touch-icon" sizes="114x114" href="//justice-love.com/assets/img/favicons/apple-icon-114x114.png"> <link rel="apple-touch-icon" sizes="144x144" href="//justice-love.com/assets/img/favicons/apple-icon-144x144.png"> <link rel="shortcut icon" type="image/png" href="//justice-love.com/favicon.png" /> <link rel="shortcut icon" href="//justice-love.com/favicon.ico" /> <!-- video --> <!-- Background Image --> <style type="text/css">body {background-image:url(https://cdn.justice-love.com/image/jpg/bjtp1.jpg); background-repeat: no-repeat; background-size: cover; }</style> <!-- Post Feature Image --> <script> var _hmt = _hmt || []; (function() { var hm = document.createElement("script"); hm.src = "https://hm.baidu.com/hm.js?b8fa0aab7976f4bd13b1648e04c7243f"; var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(hm, s); })(); </script> </head> <body> <nav id="dl-menu" class="dl-menuwrapper" role="navigation"> <button class="dl-trigger">Open Menu</button> <ul class="dl-menu"> <li><a href="//justice-love.com/">Home</a></li> <li> <a href="#">Articles</a> <ul class="dl-submenu"> <li><a href="//justice-love.com/posts/">日志</a></li> <li><a href="//justice-love.com/yan/">妍小言</a></li> <li><a href="//justice-love.com/shu/">舒小书</a></li> <li><a href="//justice-love.com/haoran/">浩然说</a></li> <li><a href="//justice-love.com/life/">生活日记</a></li> </ul> </li> <li><a href="//justice-love.com/tags/" >All Tags</a></li> </ul><!-- /.dl-menu --> </nav><!-- /.dl-menuwrapper --> <!-- Header --> <header class="header" role="banner"> <div class="wrapper-page animated fadeIn"> <div class="content"> <div class="post-title "> <h1>Jekyll博客自动部署</h1> <h4>18 Aug 2017</h4> <p class="reading-time"> <i class="fa fa-clock-o"></i> Reading time ~1 minute </p><!-- /.entry-reading-time --> <a class="btn zoombtn" href="//justice-love.com/posts/"> <i class="fa fa-chevron-left"></i> </a> </div> <div style="font-size: 15px"> <ol> <li>配置GitHub webhook</li> <li>使用python搭建简单的http服务</li> <li>调用脚本重新部署Jekyll博客</li> <li>配置python服务开机启动</li> <li>通过nginx转发，限制域名访问，可以简单做到防刷</li> </ol> <ul> <li>配置webhook <ul> <li>在github项目设置页面新增webhook</li> <li>最简单的webhook仅需配置回调url即可，我下面的例子中增加了安全性校验，你需要在配置webhook的时候设置一个安全密钥，GitHub会根据密钥和请求体使用hmac算法生成一串摘要，放到请求头里，供我们进行安全性校验</li> </ul> </li> <li> <p>python服务脚本</p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    
+  <span class="kn">import</span> <span class="nn">BaseHTTPServer</span>
+  <span class="kn">import</span> <span class="nn">os</span>
+  <span class="kn">import</span> <span class="nn">hmac</span>
+  <span class="kn">import</span> <span class="nn">hashlib</span>
+    
+  <span class="k">class</span> <span class="nc">MyHttpHandler</span><span class="p">(</span><span class="n">BaseHTTPServer</span><span class="p">.</span><span class="n">BaseHTTPRequestHandler</span><span class="p">):</span>
+      <span class="k">def</span> <span class="nf">do_GET</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+          <span class="k">print</span> <span class="bp">self</span><span class="p">.</span><span class="n">path</span>        
+          <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">hand</span><span class="p">(</span><span class="s">"get"</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+    
+      <span class="k">def</span> <span class="nf">do_POST</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+          <span class="n">secret</span> <span class="o">=</span> <span class="s">"*****"</span>
+          <span class="n">event</span> <span class="o">=</span> <span class="s">"push"</span>
+          <span class="n">script</span> <span class="o">=</span> <span class="s">"file"</span>
+    
+          <span class="k">print</span> <span class="bp">self</span><span class="p">.</span><span class="n">path</span>
+            
+    
+          <span class="c1"># verify key
+</span>          <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="p">.</span><span class="n">headers</span><span class="p">.</span><span class="n">has_key</span><span class="p">(</span><span class="s">"X-Hub-Signature"</span><span class="p">):</span>
+              <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">hand</span><span class="p">(</span><span class="s">"post"</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+          <span class="c1"># elif secret != self.headers["X-Hub-Signature"]:
+</span>          <span class="c1">#     return self.hand("post", False) 
+</span>          <span class="n">payload</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">rfile</span><span class="p">.</span><span class="n">read</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">headers</span><span class="p">[</span><span class="s">'content-length'</span><span class="p">]))</span>
+          <span class="n">signature</span> <span class="o">=</span> <span class="s">'sha1='</span> <span class="o">+</span> <span class="n">hmac</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">secret</span><span class="p">,</span> <span class="n">payload</span><span class="p">,</span> <span class="n">hashlib</span><span class="p">.</span><span class="n">sha1</span><span class="p">).</span><span class="n">hexdigest</span><span class="p">()</span>
+          <span class="k">print</span> <span class="n">signature</span>
+          <span class="k">if</span> <span class="n">signature</span> <span class="o">!=</span> <span class="bp">self</span><span class="p">.</span><span class="n">headers</span><span class="p">[</span><span class="s">"X-Hub-Signature"</span><span class="p">]:</span>
+              <span class="bp">self</span><span class="p">.</span><span class="n">hand</span><span class="p">(</span><span class="s">"post"</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+    
+          <span class="c1">#veryfy event
+</span>          <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="p">.</span><span class="n">headers</span><span class="p">.</span><span class="n">has_key</span><span class="p">(</span><span class="s">"X-GitHub-Event"</span><span class="p">):</span>
+              <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">hand</span><span class="p">(</span><span class="s">"post"</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+          <span class="k">elif</span> <span class="n">event</span> <span class="o">!=</span> <span class="bp">self</span><span class="p">.</span><span class="n">headers</span><span class="p">[</span><span class="s">"X-GitHub-Event"</span><span class="p">]:</span>
+              <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">hand</span><span class="p">(</span><span class="s">"post"</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span> 
+    
+          <span class="n">os</span><span class="p">.</span><span class="n">system</span><span class="p">(</span><span class="n">script</span><span class="p">)</span>
+          <span class="k">print</span> <span class="s">"jekyll deploy"</span>
+          <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">hand</span><span class="p">(</span><span class="s">"post"</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+    
+      <span class="k">def</span> <span class="nf">hand</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">allow</span><span class="p">):</span>
+          <span class="s">''' hand request '''</span>
+    
+          <span class="bp">self</span><span class="p">.</span><span class="n">protocal_version</span> <span class="o">=</span> <span class="s">"HTTP/1.1"</span>
+            
+          <span class="k">if</span> <span class="n">allow</span><span class="p">:</span>
+              <span class="bp">self</span><span class="p">.</span><span class="n">send_header</span><span class="p">(</span><span class="s">"SUCCESS"</span><span class="p">,</span> <span class="s">"SUCCESS"</span><span class="p">)</span>           
+          <span class="bp">self</span><span class="p">.</span><span class="n">send_response</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span>
+            
+          <span class="bp">self</span><span class="p">.</span><span class="n">end_headers</span><span class="p">()</span>
+    
+          <span class="k">print</span> <span class="n">method</span>
+          <span class="k">if</span> <span class="ow">not</span> <span class="n">allow</span><span class="p">:</span>
+              <span class="bp">self</span><span class="p">.</span><span class="n">wfile</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="s">"not allow"</span><span class="p">)</span>
+              
+    
+  <span class="k">def</span> <span class="nf">httpServer</span><span class="p">():</span>
+      <span class="n">port</span> <span class="o">=</span> <span class="mi">8091</span>
+      <span class="n">http_server</span> <span class="o">=</span> <span class="n">BaseHTTPServer</span><span class="p">.</span><span class="n">HTTPServer</span><span class="p">((</span><span class="s">''</span><span class="p">,</span> <span class="n">port</span><span class="p">),</span> <span class="n">MyHttpHandler</span><span class="p">)</span>
+      <span class="n">http_server</span><span class="p">.</span><span class="n">serve_forever</span><span class="p">()</span>
+        
+        
+  <span class="c1"># log module
+</span>  <span class="n">LOG_FILE</span> <span class="o">=</span> <span class="n">filePath</span>
+    
+  <span class="n">handler</span> <span class="o">=</span> <span class="n">logging</span><span class="p">.</span><span class="n">handlers</span><span class="p">.</span><span class="n">RotatingFileHandler</span><span class="p">(</span><span class="n">LOG_FILE</span><span class="p">,</span> <span class="n">maxBytes</span> <span class="o">=</span> <span class="mi">1024</span><span class="o">*</span><span class="mi">1024</span><span class="p">,</span> <span class="n">backupCount</span> <span class="o">=</span> <span class="mi">5</span><span class="p">)</span>
+  <span class="n">fmt</span> <span class="o">=</span> <span class="s">'%(asctime)s - %(filename)s:%(lineno)s - %(name)s - %(message)s'</span>  
+    
+  <span class="n">formatter</span> <span class="o">=</span> <span class="n">logging</span><span class="p">.</span><span class="n">Formatter</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span>
+  <span class="n">handler</span><span class="p">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
+    
+  <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="p">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s">'serverLog'</span><span class="p">)</span>
+  <span class="n">logger</span><span class="p">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
+  <span class="n">logger</span><span class="p">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="p">.</span><span class="n">DEBUG</span><span class="p">)</span> 
+    
+  <span class="n">httpServer</span><span class="p">()</span>
+</code></pre></div> </div> </li> <li> <p>重新部署脚本</p> <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    
+  <span class="c">#!/bin/bash</span>
+  <span class="nv">GITHUB</span><span class="o">=</span>github
+  <span class="nv">BRANCH</span><span class="o">=</span>master
+  <span class="nv">TEMP_CLONE</span><span class="o">=</span>path
+  <span class="nv">jekyll</span><span class="o">=</span>to_path
+    
+  <span class="k">if</span> <span class="o">[</span> <span class="nt">-d</span> <span class="nv">$TEMP_CLONE</span> <span class="o">]</span>
+      <span class="k">then
+        </span><span class="nb">echo</span> <span class="s2">"git pull and jekyll rebuild"</span>
+        <span class="nb">cd</span> <span class="nv">$TEMP_CLONE</span>
+        git pull
+        jekyll build <span class="nt">-s</span> <span class="nv">$TEMP_CLONE</span> <span class="nt">-d</span> <span class="nv">$jekyll</span>
+        <span class="nb">exit
+      </span><span class="k">else
+        </span><span class="nb">echo</span> <span class="s2">"git clone and jekyll rebuild"</span>
+        git clone <span class="nv">$GITHUB</span> <span class="nt">-b</span> <span class="nv">$BRANCH</span> <span class="nv">$TEMP_CLONE</span>
+        jekyll build <span class="nt">-s</span> <span class="nv">$TEMP_CLONE</span> <span class="nt">-d</span> <span class="nv">$jekyll</span>
+        <span class="nb">exit
+  </span><span class="k">fi</span>
+</code></pre></div> </div> </li> <li> <p>配置python服务开机启动</p> <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    
+  <span class="o">[</span>Unit]
+  <span class="nv">Description</span><span class="o">=</span>pythonServer
+    
+  <span class="o">[</span>Service]
+  <span class="nv">TimeoutStartSec</span><span class="o">=</span>0
+  <span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/python /opt/pages/www/script/server.py
+    
+  <span class="o">[</span>Install]
+  <span class="nv">WantedBy</span><span class="o">=</span>multi-user.target
+</code></pre></div> </div> <p>或者：<code class="language-plaintext highlighter-rouge">nohup /usr/bin/python /opt/pages/www/script/server.py &amp;</code></p> </li> </ul> </div> <div class="entry-meta"> <br> <hr> <script src="https://apps.bdimg.com/libs/jquery/1.8.2/jquery.js"></script> <script src="//justice-love.com/assets/js/jquery.share.min.js"></script> <span class="entry-tags"><a href="//justice-love.com/tags/#GitHub" title="Pages tagged GitHub" class="tag"><span class="term">GitHub</span></a><a href="//justice-love.com/tags/#webhook" title="Pages tagged webhook" class="tag"><span class="term">webhook</span></a><a href="//justice-love.com/tags/#python" title="Pages tagged python" class="tag"><span class="term">python</span></a></span> <div id="share-china"></div> <div style="clear:both"></div> <script> $('#share-china').share({sites: ['qzone', 'weibo','wechat', 'facebook', 'twitter']}); </script> </div> </div> </div> <section id="disqus_thread" class="animated fadeInUp"> <div id="gitalk-container"></div> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css"> <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script> <script type="text/javascript"> var id = document.URL; if (id.indexOf('?') > 0) { id = id.substr(0, id.indexOf('?')); } const gitalk = new Gitalk({ clientID: '94ea015a2463191dc163', clientSecret: '5fba2b9dc7bf84584dd7a7d8d070e3c0e9d260bf', accessToken: '5facc6f1b9b0e6f0e66e986ba01423102f89d5c7', repo: 'blog-comments', owner: 'Justice-love', admin: ['Justice-love'], distractionFreeMode: false, labels: ['comments'], title: 'Jekyll博客自动部署', id: id, proxy: 'https://proxy.justice-love.com/https://github.com/login/oauth/access_token' }); gitalk.render('gitalk-container'); </script> </section> </header> <!-- JS --> <script src="//justice-love.com/assets/js/jquery-3.6.0.min.js"></script> <script src="//justice-love.com/assets/js/jquery.dlmenu.min.js"></script> <script src="//justice-love.com/assets/js/jquery.goup.min.js"></script> <script src="//justice-love.com/assets/js/jquery.magnific-popup.min.js"></script> <script src="//justice-love.com/assets/js/jquery.fitvid.min.js"></script> <script src="//justice-love.com/assets/js/scripts.js"></script> <script src="//justice-love.com/assets/js/clipboard.min.js"></script> <!-- MathJax --> <script async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script> </body> </html>

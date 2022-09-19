@@ -1,0 +1,80 @@
+<!DOCTYPE html> <!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]--> <!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8"><![endif]--> <!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9"><![endif]--> <!--[if gt IE 8]><!--> <html class="no-js"><!--<![endif]--> <head> <meta charset="UTF-8"> <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"> <meta http-equiv=X-UA-Compatible content="IE=edge,chrome=1"> <title>MyBatis ResultMap &#8211; 轶 & 霄</title> <meta name="description" content="我们的小窝"> <meta name="keywords" content="mybatis, resultMap"> <!-- Twitter Cards --> <meta name="twitter:card" content="summary"> <meta name="twitter:image" content="//justice-love.com/assets/img/logo.png"> <meta name="twitter:title" content="MyBatis ResultMap"> <meta name="twitter:description" content="一个select节点配置多个resultMap"> <!-- Open Graph --> <meta property="og:locale" content="zh_CN"> <meta property="og:type" content="article"> <meta property="og:title" content="MyBatis ResultMap"> <meta property="og:description" content="一个select节点配置多个resultMap"> <meta property="og:url" content="//justice-love.com/resultmap/"> <meta property="og:site_name" content="轶 & 霄"> <meta property="og:image" content="//justice-love.com/assets/img/logo.png"> <link rel="canonical" href="//justice-love.com/resultmap/"> <link href="//justice-love.com/feed.xml" type="application/atom+xml" rel="alternate" title="轶 & 霄 Feed"> <!-- Handheld --> <meta name="HandheldFriendly" content="True"> <meta name="MobileOptimized" content="320"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- CSS --> <link rel="stylesheet" href="//justice-love.com/assets/css/main.css"> <link rel="stylesheet" href="//justice-love.com/assets/css/share.min.css"> <!-- JS --> <script src="//justice-love.com/assets/js/modernizr-3.3.1.custom.min.js"></script> <!-- Favicons --> <link rel="apple-touch-icon" href="//justice-love.com/assets/img/favicons/apple-icon-precomposed.png"> <link rel="apple-touch-icon" sizes="72x72" href="//justice-love.com/assets/img/favicons/apple-icon-72x72.png"> <link rel="apple-touch-icon" sizes="114x114" href="//justice-love.com/assets/img/favicons/apple-icon-114x114.png"> <link rel="apple-touch-icon" sizes="144x144" href="//justice-love.com/assets/img/favicons/apple-icon-144x144.png"> <link rel="shortcut icon" type="image/png" href="//justice-love.com/favicon.png" /> <link rel="shortcut icon" href="//justice-love.com/favicon.ico" /> <!-- video --> <!-- Background Image --> <style type="text/css">body {background-image:url(https://cdn.justice-love.com/image/jpg/bjtp1.jpg); background-repeat: no-repeat; background-size: cover; }</style> <!-- Post Feature Image --> <script> var _hmt = _hmt || []; (function() { var hm = document.createElement("script"); hm.src = "https://hm.baidu.com/hm.js?b8fa0aab7976f4bd13b1648e04c7243f"; var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(hm, s); })(); </script> </head> <body> <nav id="dl-menu" class="dl-menuwrapper" role="navigation"> <button class="dl-trigger">Open Menu</button> <ul class="dl-menu"> <li><a href="//justice-love.com/">Home</a></li> <li> <a href="#">Articles</a> <ul class="dl-submenu"> <li><a href="//justice-love.com/posts/">日志</a></li> <li><a href="//justice-love.com/yan/">妍小言</a></li> <li><a href="//justice-love.com/shu/">舒小书</a></li> <li><a href="//justice-love.com/haoran/">浩然说</a></li> <li><a href="//justice-love.com/life/">生活日记</a></li> </ul> </li> <li><a href="//justice-love.com/tags/">All Tags</a></li> </ul>
+<!-- /.dl-menu --> </nav><!-- /.dl-menuwrapper --> <!-- Header --> <header class="header" role="banner"> <div class="wrapper-page animated fadeIn"> <div class="content"> <div class="post-title "> <h1>MyBatis ResultMap</h1> <h4>31 May 2017</h4> <p class="reading-time"> <i class="fa fa-clock-o"></i> Reading time ~2 minutes </p>
+<!-- /.entry-reading-time --> <a class="btn zoombtn" href="//justice-love.com/posts/"> <i class="fa fa-chevron-left"></i> </a> </div> <div style="font-size: 15px"> <h2 id="mybatis多resultmap使用场景">mybatis多resultMap使用场景</h2> <p>一条SQL返回多个ResultSet，多见于调用存储过程，用于每个resultSet做不同的关系映射。</p> <h2 id="写法">写法</h2> <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">&lt;!-- resultMaps --&gt;</span>
+<span class="nt">&lt;resultMap</span> <span class="na">id=</span><span class="s">"user"</span> <span class="na">type=</span><span class="s">"com.eddy.model.User"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;result</span> <span class="na">column=</span><span class="s">"id"</span> <span class="na">property=</span><span class="s">"id"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;result</span> <span class="na">column=</span><span class="s">"active"</span> <span class="na">property=</span><span class="s">"active"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;result</span> <span class="na">column=</span><span class="s">"login_name"</span> <span class="na">property=</span><span class="s">"loginName"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;result</span> <span class="na">column=</span><span class="s">"create_time"</span> <span class="na">property=</span><span class="s">"createTime"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;result</span> <span class="na">column=</span><span class="s">"update_time"</span> <span class="na">property=</span><span class="s">"updateTime"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;association</span> <span class="na">property=</span><span class="s">"company"</span> <span class="na">column=</span><span class="s">"company_id"</span>  <span class="na">select=</span><span class="s">"com.eddy.dao.mapper.CompanyMapper.selectById"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;collection</span> <span class="na">property=</span><span class="s">"businessEntities"</span> <span class="na">column=</span><span class="s">"id"</span> <span class="na">select=</span><span class="s">"com.eddy.dao.mapper.BusinessEntityMapper.selectByUserId"</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/resultMap&gt;</span>
+
+<span class="nt">&lt;resultMap</span> <span class="na">id=</span><span class="s">"param"</span> <span class="na">type=</span><span class="s">"integer"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;constructor&gt;</span>
+        <span class="nt">&lt;arg</span> <span class="na">column=</span><span class="s">"param"</span> <span class="na">javaType=</span><span class="s">"int"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;/constructor&gt;</span>
+<span class="nt">&lt;/resultMap&gt;</span>
+
+<span class="nt">&lt;resultMap</span> <span class="na">id=</span><span class="s">"userRole"</span> <span class="na">type=</span><span class="s">"com.eddy.model.Role"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;result</span> <span class="na">column=</span><span class="s">"id"</span> <span class="na">property=</span><span class="s">"id"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;result</span> <span class="na">column=</span><span class="s">"name"</span> <span class="na">property=</span><span class="s">"name"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;result</span> <span class="na">column=</span><span class="s">"title"</span> <span class="na">property=</span><span class="s">"title"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;result</span> <span class="na">column=</span><span class="s">"create_time"</span> <span class="na">property=</span><span class="s">"createTime"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;result</span> <span class="na">column=</span><span class="s">"update_time"</span> <span class="na">property=</span><span class="s">"updateTime"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;association</span> <span class="na">property=</span><span class="s">"company"</span> <span class="na">column=</span><span class="s">"company_id"</span>  <span class="na">select=</span><span class="s">"com.eddy.dao.mapper.CompanyMapper.selectById"</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/resultMap&gt;</span>
+
+<span class="c">&lt;!-- select --&gt;</span>
+<span class="nt">&lt;select</span> <span class="na">id=</span><span class="s">"mutiResult"</span> <span class="na">resultMap=</span><span class="s">"param, user, userRole"</span> <span class="na">statementType=</span><span class="s">"CALLABLE"</span> <span class="nt">&gt;</span>
+    call muti_result(#{param})
+<span class="nt">&lt;/select&gt;</span>
+</code></pre></div></div> <h2 id="存储过程">存储过程</h2> <div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">DELIMITER</span> <span class="o">//</span>
+<span class="k">create</span> <span class="k">PROCEDURE</span> <span class="n">muti_result</span><span class="p">(</span><span class="k">in</span> <span class="n">param</span> <span class="nb">int</span><span class="p">)</span>
+<span class="k">begin</span>
+	<span class="k">select</span> <span class="n">param</span><span class="p">;</span>
+	<span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="k">user</span> <span class="k">where</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+	<span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="k">role</span> <span class="k">where</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="k">end</span> <span class="o">//</span>
+<span class="k">DELIMITER</span> <span class="p">;</span>
+</code></pre></div></div> <h2 id="结果">结果</h2> <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Test</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">test10</span><span class="o">()</span> <span class="o">{</span>
+    <span class="nc">List</span><span class="o">&lt;</span><span class="nc">ArrayList</span><span class="o">&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="n">userMapper</span><span class="o">.</span><span class="na">mutiResult</span><span class="o">(</span><span class="mi">2</span><span class="o">);</span>
+    <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">result</span><span class="o">);</span>
+<span class="o">}</span>
+<span class="c1">//[[2], [User], [Role]]</span>
+
+</code></pre></div></div> <h2 id="补充">补充</h2> <p>判断是否有多个结果集并获取下一个结果集。</p> <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * Moves to this &lt;code&gt;Statement&lt;/code&gt; object's next result, returns
+ * &lt;code&gt;true&lt;/code&gt; if it is a &lt;code&gt;ResultSet&lt;/code&gt; object, and
+ * implicitly closes any current &lt;code&gt;ResultSet&lt;/code&gt;
+ * object(s) obtained with the method &lt;code&gt;getResultSet&lt;/code&gt;.
+ *
+ * &lt;P&gt;There are no more results when the following is true:
+ * &lt;PRE&gt;{@code
+ *     // stmt is a Statement object
+ *     ((stmt.getMoreResults() == false) &amp;&amp; (stmt.getUpdateCount() == -1))
+ * }&lt;/PRE&gt;
+ *
+ * @return &lt;code&gt;true&lt;/code&gt; if the next result is a &lt;code&gt;ResultSet&lt;/code&gt;
+ *         object; &lt;code&gt;false&lt;/code&gt; if it is an update count or there are
+ *         no more results
+ * @exception SQLException if a database access error occurs or
+ * this method is called on a closed &lt;code&gt;Statement&lt;/code&gt;
+ * @see #execute
+ */</span>
+<span class="kt">boolean</span> <span class="nf">getMoreResults</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">SQLException</span><span class="o">;</span>
+
+<span class="cm">/**
+ *  Retrieves the current result as a &lt;code&gt;ResultSet&lt;/code&gt; object.
+ *  This method should be called only once per result.
+ *
+ * @return the current result as a &lt;code&gt;ResultSet&lt;/code&gt; object or
+ * &lt;code&gt;null&lt;/code&gt; if the result is an update count or there are no more results
+ * @exception SQLException if a database access error occurs or
+ * this method is called on a closed &lt;code&gt;Statement&lt;/code&gt;
+ * @see #execute
+ */</span>
+<span class="nc">ResultSet</span> <span class="nf">getResultSet</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">SQLException</span><span class="o">;</span>
+</code></pre></div></div> </div> <div class="entry-meta"> <br> <hr> <script src="https://apps.bdimg.com/libs/jquery/1.8.2/jquery.js"></script> <script src="//justice-love.com/assets/js/jquery.share.min.js"></script> <span class="entry-tags"><a href="//justice-love.com/tags/#mybatis" title="Pages tagged mybatis" class="tag"><span class="term">mybatis</span></a><a href="//justice-love.com/tags/#resultMap" title="Pages tagged resultMap" class="tag"><span class="term">resultMap</span></a></span> <div id="share-china"></div> <div style="clear:both"></div> <script> $('#share-china').share({sites: ['qzone', 'weibo','wechat', 'facebook', 'twitter']}); </script> </div> </div> </div> <section id="disqus_thread" class="animated fadeInUp"> <div id="gitalk-container"></div> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css"> <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script> <script type="text/javascript"> var id = document.URL; if (id.indexOf('?') > 0) { id = id.substr(0, id.indexOf('?')); } const gitalk = new Gitalk({ clientID: '94ea015a2463191dc163', clientSecret: '5fba2b9dc7bf84584dd7a7d8d070e3c0e9d260bf', accessToken: '5facc6f1b9b0e6f0e66e986ba01423102f89d5c7', repo: 'blog-comments', owner: 'Justice-love', admin: ['Justice-love'], distractionFreeMode: false, labels: ['comments'], title: 'MyBatis ResultMap', id: id, proxy: 'https://proxy.justice-love.com/https://github.com/login/oauth/access_token' }); gitalk.render('gitalk-container'); </script> </section> </header> <!-- JS --> <script src="//justice-love.com/assets/js/jquery-3.6.0.min.js"></script> <script src="//justice-love.com/assets/js/jquery.dlmenu.min.js"></script> <script src="//justice-love.com/assets/js/jquery.goup.min.js"></script> <script src="//justice-love.com/assets/js/jquery.magnific-popup.min.js"></script> <script src="//justice-love.com/assets/js/jquery.fitvid.min.js"></script> <script src="//justice-love.com/assets/js/scripts.js"></script> <script src="//justice-love.com/assets/js/clipboard.min.js"></script> <!-- MathJax --> <script async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script> </body> </html>

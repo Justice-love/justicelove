@@ -1,0 +1,106 @@
+<!DOCTYPE html> <!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]--> <!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8"><![endif]--> <!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9"><![endif]--> <!--[if gt IE 8]><!--> <html class="no-js"><!--<![endif]--> <head> <meta charset="UTF-8"> <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"> <meta http-equiv=X-UA-Compatible content="IE=edge,chrome=1"> <title>缓存 &#8211; 轶 & 霄</title> <meta name="description" content="我们的小窝"> <meta name="keywords" content="Java, Cache"> <!-- Twitter Cards --> <meta name="twitter:card" content="summary"> <meta name="twitter:image" content="//justice-love.com/assets/img/logo.png"> <meta name="twitter:title" content="缓存"> <meta name="twitter:description" content="我所理解的几种不同的缓存实现方式"> <!-- Open Graph --> <meta property="og:locale" content="zh_CN"> <meta property="og:type" content="article"> <meta property="og:title" content="缓存"> <meta property="og:description" content="我所理解的几种不同的缓存实现方式"> <meta property="og:url" content="//justice-love.com/cache/"> <meta property="og:site_name" content="轶 & 霄"> <meta property="og:image" content="//justice-love.com/assets/img/logo.png"> <link rel="canonical" href="//justice-love.com/cache/"> <link href="//justice-love.com/feed.xml" type="application/atom+xml" rel="alternate" title="轶 & 霄 Feed"> <!-- Handheld --> <meta name="HandheldFriendly" content="True"> <meta name="MobileOptimized" content="320"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- CSS --> <link rel="stylesheet" href="//justice-love.com/assets/css/main.css"> <link rel="stylesheet" href="//justice-love.com/assets/css/share.min.css"> <!-- JS --> <script src="//justice-love.com/assets/js/modernizr-3.3.1.custom.min.js"></script> <!-- Favicons --> <link rel="apple-touch-icon" href="//justice-love.com/assets/img/favicons/apple-icon-precomposed.png"> <link rel="apple-touch-icon" sizes="72x72" href="//justice-love.com/assets/img/favicons/apple-icon-72x72.png"> <link rel="apple-touch-icon" sizes="114x114" href="//justice-love.com/assets/img/favicons/apple-icon-114x114.png"> <link rel="apple-touch-icon" sizes="144x144" href="//justice-love.com/assets/img/favicons/apple-icon-144x144.png"> <link rel="shortcut icon" type="image/png" href="//justice-love.com/favicon.png" /> <link rel="shortcut icon" href="//justice-love.com/favicon.ico" /> <!-- video --> <!-- Background Image --> <style type="text/css">body {background-image:url(https://cdn.justice-love.com/image/jpg/bjtp1.jpg); background-repeat: no-repeat; background-size: cover; }</style> <!-- Post Feature Image --> <script> var _hmt = _hmt || []; (function() { var hm = document.createElement("script"); hm.src = "https://hm.baidu.com/hm.js?b8fa0aab7976f4bd13b1648e04c7243f"; var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(hm, s); })(); </script> </head> <body> <nav id="dl-menu" class="dl-menuwrapper" role="navigation"> <button class="dl-trigger">Open Menu</button> <ul class="dl-menu"> <li><a href="//justice-love.com/">Home</a></li> <li> <a href="#">Articles</a> <ul class="dl-submenu"> <li><a href="//justice-love.com/posts/">日志</a></li> <li><a href="//justice-love.com/yan/">妍小言</a></li> <li><a href="//justice-love.com/shu/">舒小书</a></li> <li><a href="//justice-love.com/haoran/">浩然说</a></li> <li><a href="//justice-love.com/life/">生活日记</a></li> </ul> </li> <li><a href="//justice-love.com/tags/">All Tags</a></li> </ul>
+<!-- /.dl-menu --> </nav><!-- /.dl-menuwrapper --> <!-- Header --> <header class="header" role="banner"> <div class="wrapper-page animated fadeIn"> <div class="content"> <div class="post-title "> <h1>缓存</h1> <h4>28 Feb 2017</h4> <p class="reading-time"> <i class="fa fa-clock-o"></i> Reading time ~3 minutes </p>
+<!-- /.entry-reading-time --> <a class="btn zoombtn" href="//justice-love.com/posts/"> <i class="fa fa-chevron-left"></i> </a> </div> <div style="font-size: 15px"> <blockquote> <p>记录一下我所了解的几种缓存机制</p> </blockquote> <h1 id="缓存">缓存</h1> <p>缓存是一种存储在内存中，可以快速定位查找数据的数据结构，并且一个缓存算法是包含了冷数据淘汰的机制的。</p> <h2 id="lru">LRU</h2> <p>LRU-Least Recently Used 的缩写，即近期最少使用算法，一般会使用 <strong>双向链表</strong> 按照访问顺序对缓存数据进行排序，当满足一定条件后可以将链表中最少使用的数据从缓存中剔除出去。<br>在Java中，从1.4开始提供了<code class="language-plaintext highlighter-rouge">java.util.LinkedHashMap</code>类来帮助我们简单的实现LRU缓存算法。</p> <ul> <li>继承<code class="language-plaintext highlighter-rouge">java.util.LinkedHashMap</code>
+</li> <li>通过构造函数定义<code class="language-plaintext highlighter-rouge">java.util.LinkedHashMap#accessOrder</code>为true，即链表排列顺序为访问顺序（默认为false，即插入顺序）</li> <li>覆盖<code class="language-plaintext highlighter-rouge">java.util.LinkedHashMap</code>的removeEldestEntry方法 <ul> <li>JDK会在向该Map中put数据时会调用该方法</li> <li>如果返回true，则会将存在时间最长的数据剔除</li> </ul> </li> </ul> <p><strong><em>下面是一个利用<code class="language-plaintext highlighter-rouge">java.util.LinkedHashMap</code>LRU的简单实现</em></strong></p> <figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="cm">/**
+ * Created by Justice-love on 2017/2/28.
+ */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyLRU</span> <span class="kd">extends</span> <span class="nc">LinkedHashMap</span><span class="o">{</span>
+
+    <span class="kd">public</span> <span class="nf">MyLRU</span><span class="o">(</span><span class="kt">int</span> <span class="n">initialCapacity</span><span class="o">,</span> <span class="kt">float</span> <span class="n">loadFactor</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kd">super</span><span class="o">(</span><span class="n">initialCapacity</span><span class="o">,</span> <span class="n">loadFactor</span><span class="o">,</span> <span class="kc">true</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+     * Returns &lt;tt&gt;true&lt;/tt&gt; if this map should remove its eldest entry.
+     * This method is invoked by &lt;tt&gt;put&lt;/tt&gt; and &lt;tt&gt;putAll&lt;/tt&gt; after
+     * inserting a new entry into the map.  It provides the implementor
+     * with the opportunity to remove the eldest entry each time a new one
+     * is added.  This is useful if the map represents a cache: it allows
+     * the map to reduce memory consumption by deleting stale entries.
+     * &lt;p&gt;
+     * &lt;p&gt;Sample use: this override will allow the map to grow up to 100
+     * entries and then delete the eldest entry each time a new entry is
+     * added, maintaining a steady state of 100 entries.
+     * &lt;pre&gt;
+     *     private static final int MAX_ENTRIES = 100;
+     *
+     *     protected boolean removeEldestEntry(Map.Entry eldest) {
+     *        return size() &amp;gt; MAX_ENTRIES;
+     *     }
+     * &lt;/pre&gt;
+     * &lt;p&gt;
+     * &lt;p&gt;This method typically does not modify the map in any way,
+     * instead allowing the map to modify itself as directed by its
+     * return value.  It &lt;i&gt;is&lt;/i&gt; permitted for this method to modify
+     * the map directly, but if it does so, it &lt;i&gt;must&lt;/i&gt; return
+     * &lt;tt&gt;false&lt;/tt&gt; (indicating that the map should not attempt any
+     * further modification).  The effects of returning &lt;tt&gt;true&lt;/tt&gt;
+     * after modifying the map from within this method are unspecified.
+     * &lt;p&gt;
+     * &lt;p&gt;This implementation merely returns &lt;tt&gt;false&lt;/tt&gt; (so that this
+     * map acts like a normal map - the eldest element is never removed).
+     *
+     * @param eldest The least recently inserted entry in the map, or if
+     *               this is an access-ordered map, the least recently accessed
+     *               entry.  This is the entry that will be removed it this
+     *               method returns &lt;tt&gt;true&lt;/tt&gt;.  If the map was empty prior
+     *               to the &lt;tt&gt;put&lt;/tt&gt; or &lt;tt&gt;putAll&lt;/tt&gt; invocation resulting
+     *               in this invocation, this will be the entry that was just
+     *               inserted; in other words, if the map contains a single
+     *               entry, the eldest entry is also the newest.
+     * @return &lt;tt&gt;true&lt;/tt&gt; if the eldest entry should be removed
+     * from the map; &lt;tt&gt;false&lt;/tt&gt; if it should be retained.
+     */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">protected</span> <span class="kt">boolean</span> <span class="nf">removeEldestEntry</span><span class="o">(</span><span class="nc">Map</span><span class="o">.</span><span class="na">Entry</span> <span class="n">eldest</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">size</span><span class="o">()</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre></figure> <h3 id="不足">不足</h3> <ul> <li>从Java1.8<code class="language-plaintext highlighter-rouge">java.util.LinkedHashMap#afterNodeAccess</code>源码可以看出，当读取一个缓存数据之后，访问顺序链表将会发生重排。</li> <li>由于缓存的特性，所以他必须是全局变量，当并发量比较大的情况下，缓存作为临界资源在发生重排时势必加锁，使对链表的变更操作由异步转换为同步操作。</li> </ul> <h2 id="软引用">软引用</h2> <p><strong>Java中的软引用也经常被用在缓存的实现上。</strong></p> <p>软引用属于Java中四种引用方式中的一种，不同于我们平常使用的强引用，软引用并非只在对象未被根搜索算法查找到时才可能被回收，而是在内存空间不足时，同样会回收这些对象，这是软引用的特性（除了强引用，软引用，还有弱引用，虚引用，但这两种很少用到）。</p> <ul> <li>依照这种特性，如果使用软引用来存储缓存数据，则缓存数据会被保存至内存将要溢出时。</li> </ul> <p><strong><em>以下是我使用软引用实现的缓存结构。</em></strong></p> <figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="cm">/**
+ * Created by Justice-love on 2017/2/28.
+ */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">SoftCache</span><span class="o">&lt;</span><span class="no">K</span><span class="o">,</span> <span class="no">V</span><span class="o">&gt;</span> <span class="kd">extends</span> <span class="nc">HashMap</span><span class="o">&lt;</span><span class="no">K</span><span class="o">,</span> <span class="nc">SoftReference</span><span class="o">&lt;</span><span class="no">V</span><span class="o">&gt;&gt;</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="no">V</span> <span class="nf">getValue</span><span class="o">(</span><span class="no">K</span> <span class="n">key</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">SoftReference</span><span class="o">&lt;</span><span class="no">V</span><span class="o">&gt;</span> <span class="n">result</span> <span class="o">=</span>  <span class="kd">super</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">key</span><span class="o">);</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="na">get</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="no">V</span> <span class="nf">putValue</span><span class="o">(</span><span class="no">K</span> <span class="n">key</span><span class="o">,</span> <span class="no">V</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">SoftReference</span><span class="o">&lt;</span><span class="no">V</span><span class="o">&gt;</span> <span class="n">va</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">SoftReference</span><span class="o">&lt;</span><span class="no">V</span><span class="o">&gt;(</span><span class="n">v</span><span class="o">);</span>
+        <span class="nc">SoftReference</span><span class="o">&lt;</span><span class="no">V</span><span class="o">&gt;</span> <span class="n">re</span> <span class="o">=</span> <span class="kd">super</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">key</span><span class="o">,</span> <span class="n">va</span><span class="o">);</span>
+        <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="na">get</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre></figure> <h3 id="不足-1">不足</h3> <ul> <li>数据的清理是不可控的，可能会热点数据的全部失效，瞬时增加下游服务的压力。</li> </ul> <h2 id="oracle缓存算法">Oracle缓存算法</h2> <p>Oracle申请的专利缓存算法，数据存储使用HashMap或其他简单的Map即可，缓存的数据可以定义好他的生命周期，如数据使用次数为10次等。<br>数据是否进入缓存是依赖一个函数f（），函数的返回值是true或者false，当结果为true时，则将数据put进缓存。<br></p> <hr> <p><strong>该种缓存算法的命中率极高</strong>，原因在于热点数据的get次数远远大于冷数据，即虽然f（）相同，但热点数据更多的读取次数保证了数据在缓存中保持的时间更长。</p> <p><strong><em>以下是我的简单实现（未实现数据的移除）。</em></strong></p> <figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="cm">/**
+ * Created by Justice-love on 2017/2/28.
+ */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">OracleCache</span><span class="o">&lt;</span><span class="no">K</span><span class="o">,</span> <span class="no">V</span><span class="o">&gt;</span> <span class="o">{</span>
+
+    <span class="kd">private</span> <span class="nc">Map</span><span class="o">&lt;</span><span class="no">K</span><span class="o">,</span> <span class="no">V</span><span class="o">&gt;</span> <span class="n">cache</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">HashMap</span><span class="o">&lt;&gt;();</span>
+
+    <span class="kd">public</span> <span class="no">V</span> <span class="nf">get</span><span class="o">(</span><span class="no">K</span> <span class="n">key</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">cache</span><span class="o">.</span><span class="na">containsKey</span><span class="o">(</span><span class="n">key</span><span class="o">))</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="n">cache</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">key</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="no">V</span> <span class="n">v</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Real</span><span class="o">&lt;</span><span class="no">V</span><span class="o">&gt;().</span><span class="na">create</span><span class="o">();</span>
+        <span class="n">putToCache</span><span class="o">(</span><span class="n">key</span><span class="o">,</span> <span class="n">v</span><span class="o">);</span>
+        <span class="k">return</span> <span class="n">v</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="kt">void</span> <span class="nf">putToCache</span><span class="o">(</span><span class="no">K</span> <span class="n">key</span><span class="o">,</span> <span class="no">V</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="nc">Math</span><span class="o">.</span><span class="na">random</span><span class="o">()</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">cache</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">key</span><span class="o">,</span> <span class="n">v</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="kd">class</span> <span class="nc">Real</span><span class="o">&lt;</span><span class="no">V</span><span class="o">&gt;</span> <span class="o">{</span>
+
+    <span class="kd">public</span>  <span class="no">V</span> <span class="nf">create</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre></figure> <h3 id="注意">注意</h3> <ul> <li>数据存储可以使用HashMap，但是因为HashMap是线程不安全的，注意可能并发环境下扩容而导致的死循环问题，具体原因可查看<a href="https://my.oschina.net/hosee/blog/673521">https://my.oschina.net/hosee/blog/673521</a>
+</li> </ul> </div> <div class="entry-meta"> <br> <hr> <script src="https://apps.bdimg.com/libs/jquery/1.8.2/jquery.js"></script> <script src="//justice-love.com/assets/js/jquery.share.min.js"></script> <span class="entry-tags"><a href="//justice-love.com/tags/#Java" title="Pages tagged Java" class="tag"><span class="term">Java</span></a><a href="//justice-love.com/tags/#Cache" title="Pages tagged Cache" class="tag"><span class="term">Cache</span></a></span> <div id="share-china"></div> <div style="clear:both"></div> <script> $('#share-china').share({sites: ['qzone', 'weibo','wechat', 'facebook', 'twitter']}); </script> </div> </div> </div> <section id="disqus_thread" class="animated fadeInUp"> <div id="gitalk-container"></div> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css"> <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script> <script type="text/javascript"> var id = document.URL; if (id.indexOf('?') > 0) { id = id.substr(0, id.indexOf('?')); } const gitalk = new Gitalk({ clientID: '94ea015a2463191dc163', clientSecret: '5fba2b9dc7bf84584dd7a7d8d070e3c0e9d260bf', accessToken: '5facc6f1b9b0e6f0e66e986ba01423102f89d5c7', repo: 'blog-comments', owner: 'Justice-love', admin: ['Justice-love'], distractionFreeMode: false, labels: ['comments'], title: '缓存', id: id, proxy: 'https://proxy.justice-love.com/https://github.com/login/oauth/access_token' }); gitalk.render('gitalk-container'); </script> </section> </header> <!-- JS --> <script src="//justice-love.com/assets/js/jquery-3.6.0.min.js"></script> <script src="//justice-love.com/assets/js/jquery.dlmenu.min.js"></script> <script src="//justice-love.com/assets/js/jquery.goup.min.js"></script> <script src="//justice-love.com/assets/js/jquery.magnific-popup.min.js"></script> <script src="//justice-love.com/assets/js/jquery.fitvid.min.js"></script> <script src="//justice-love.com/assets/js/scripts.js"></script> <script src="//justice-love.com/assets/js/clipboard.min.js"></script> <!-- MathJax --> <script async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script> </body> </html>

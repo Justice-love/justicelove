@@ -1,0 +1,183 @@
+<!DOCTYPE html> <!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]--> <!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8"><![endif]--> <!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9"><![endif]--> <!--[if gt IE 8]><!--> <html class="no-js"><!--<![endif]--> <head> <meta charset="UTF-8"> <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"> <meta http-equiv=X-UA-Compatible content="IE=edge,chrome=1"> <title>从RequestContextHolder到ThreadLocal &#8211; 轶 & 霄</title> <meta name="description" content="我们的小窝"> <meta name="keywords" content="spring, threadLocal, RequestContextHolder"> <!-- Twitter Cards --> <meta name="twitter:card" content="summary"> <meta name="twitter:image" content="//justice-love.com/assets/img/logo.png"> <meta name="twitter:title" content="从RequestContextHolder到ThreadLocal"> <meta name="twitter:description" content="从Spring的RequestContextHolder解读到ThreadLocal的应用"> <!-- Open Graph --> <meta property="og:locale" content="zh_CN"> <meta property="og:type" content="article"> <meta property="og:title" content="从RequestContextHolder到ThreadLocal"> <meta property="og:description" content="从Spring的RequestContextHolder解读到ThreadLocal的应用"> <meta property="og:url" content="//justice-love.com/threadlocal/"> <meta property="og:site_name" content="轶 & 霄"> <meta property="og:image" content="//justice-love.com/assets/img/logo.png"> <link rel="canonical" href="//justice-love.com/threadlocal/"> <link href="//justice-love.com/feed.xml" type="application/atom+xml" rel="alternate" title="轶 & 霄 Feed"> <!-- Handheld --> <meta name="HandheldFriendly" content="True"> <meta name="MobileOptimized" content="320"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- CSS --> <link rel="stylesheet" href="//justice-love.com/assets/css/main.css"> <link rel="stylesheet" href="//justice-love.com/assets/css/share.min.css"> <!-- JS --> <script src="//justice-love.com/assets/js/modernizr-3.3.1.custom.min.js"></script> <!-- Favicons --> <link rel="apple-touch-icon" href="//justice-love.com/assets/img/favicons/apple-icon-precomposed.png"> <link rel="apple-touch-icon" sizes="72x72" href="//justice-love.com/assets/img/favicons/apple-icon-72x72.png"> <link rel="apple-touch-icon" sizes="114x114" href="//justice-love.com/assets/img/favicons/apple-icon-114x114.png"> <link rel="apple-touch-icon" sizes="144x144" href="//justice-love.com/assets/img/favicons/apple-icon-144x144.png"> <link rel="shortcut icon" type="image/png" href="//justice-love.com/favicon.png" /> <link rel="shortcut icon" href="//justice-love.com/favicon.ico" /> <!-- video --> <!-- Background Image --> <style type="text/css">body {background-image:url(https://cdn.justice-love.com/image/jpg/bjtp1.jpg); background-repeat: no-repeat; background-size: cover; }</style> <!-- Post Feature Image --> <script> var _hmt = _hmt || []; (function() { var hm = document.createElement("script"); hm.src = "https://hm.baidu.com/hm.js?b8fa0aab7976f4bd13b1648e04c7243f"; var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(hm, s); })(); </script> </head> <body> <nav id="dl-menu" class="dl-menuwrapper" role="navigation"> <button class="dl-trigger">Open Menu</button> <ul class="dl-menu"> <li><a href="//justice-love.com/">Home</a></li> <li> <a href="#">Articles</a> <ul class="dl-submenu"> <li><a href="//justice-love.com/posts/">日志</a></li> <li><a href="//justice-love.com/yan/">妍小言</a></li> <li><a href="//justice-love.com/shu/">舒小书</a></li> <li><a href="//justice-love.com/haoran/">浩然说</a></li> <li><a href="//justice-love.com/life/">生活日记</a></li> </ul> </li> <li><a href="//justice-love.com/tags/">All Tags</a></li> </ul>
+<!-- /.dl-menu --> </nav><!-- /.dl-menuwrapper --> <!-- Header --> <header class="header" role="banner"> <div class="wrapper-page animated fadeIn"> <div class="content"> <div class="post-title "> <h1>从RequestContextHolder到ThreadLocal</h1> <h4>27 Jun 2017</h4> <p class="reading-time"> <i class="fa fa-clock-o"></i> Reading time ~3 minutes </p>
+<!-- /.entry-reading-time --> <a class="btn zoombtn" href="//justice-love.com/posts/"> <i class="fa fa-chevron-left"></i> </a> </div> <div style="font-size: 15px"> <h2 id="spring中的requestcontextholder">Spring中的RequestContextHolder</h2> <p>用来将当前请求的上下文信息绑定到线程上(可只绑定到当前线程也可绑定到子线程，需配置)</p> <ul> <li>context绑定方式：ThreadLocal</li> </ul> <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>	<span class="cm">/**
+	 * Bind the given RequestAttributes to the current thread,
+	 * &lt;i&gt;not&lt;/i&gt; exposing it as inheritable for child threads.
+	 * @param attributes the RequestAttributes to expose
+	 * @see #setRequestAttributes(RequestAttributes, boolean)
+	 */</span>
+	<span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">setRequestAttributes</span><span class="o">(</span><span class="nc">RequestAttributes</span> <span class="n">attributes</span><span class="o">)</span> <span class="o">{</span>
+		<span class="n">setRequestAttributes</span><span class="o">(</span><span class="n">attributes</span><span class="o">,</span> <span class="kc">false</span><span class="o">);</span>
+	<span class="o">}</span>
+
+	<span class="cm">/**
+	 * Bind the given RequestAttributes to the current thread.
+	 * @param attributes the RequestAttributes to expose,
+	 * or {@code null} to reset the thread-bound context
+	 * @param inheritable whether to expose the RequestAttributes as inheritable
+	 * for child threads (using an {@link InheritableThreadLocal})
+	 */</span>
+	<span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">setRequestAttributes</span><span class="o">(</span><span class="nc">RequestAttributes</span> <span class="n">attributes</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">inheritable</span><span class="o">)</span> <span class="o">{</span>
+		<span class="k">if</span> <span class="o">(</span><span class="n">attributes</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+			<span class="n">resetRequestAttributes</span><span class="o">();</span>
+		<span class="o">}</span>
+		<span class="k">else</span> <span class="o">{</span>
+			<span class="k">if</span> <span class="o">(</span><span class="n">inheritable</span><span class="o">)</span> <span class="o">{</span>
+				<span class="n">inheritableRequestAttributesHolder</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="n">attributes</span><span class="o">);</span>
+				<span class="n">requestAttributesHolder</span><span class="o">.</span><span class="na">remove</span><span class="o">();</span>
+			<span class="o">}</span>
+			<span class="k">else</span> <span class="o">{</span>
+				<span class="n">requestAttributesHolder</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="n">attributes</span><span class="o">);</span>
+				<span class="n">inheritableRequestAttributesHolder</span><span class="o">.</span><span class="na">remove</span><span class="o">();</span>
+			<span class="o">}</span>
+		<span class="o">}</span>
+	<span class="o">}</span>
+</code></pre></div></div> <ul> <li>ThreadLocal与线程绑定，web容器均使用线程池，为了防止请求上下文信息跨请求保持长生命周期，需定义好其生命周期。 <ul> <li>在spring中，<code class="language-plaintext highlighter-rouge">RequestContextListener</code>监听了请求的初始化和请求的销毁，并在请求的初始化在ThreadLocal绑定请求信息，在请求销毁时从ThreadLocal中移除请求信息。</li> </ul> </li> </ul> <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">RequestContextListener</span> <span class="kd">implements</span> <span class="nc">ServletRequestListener</span> <span class="o">{</span>
+
+	<span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="nc">String</span> <span class="no">REQUEST_ATTRIBUTES_ATTRIBUTE</span> <span class="o">=</span>
+			<span class="nc">RequestContextListener</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">()</span> <span class="o">+</span> <span class="s">".REQUEST_ATTRIBUTES"</span><span class="o">;</span>
+
+
+	<span class="nd">@Override</span>
+	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">requestInitialized</span><span class="o">(</span><span class="nc">ServletRequestEvent</span> <span class="n">requestEvent</span><span class="o">)</span> <span class="o">{</span>
+		<span class="k">if</span> <span class="o">(!(</span><span class="n">requestEvent</span><span class="o">.</span><span class="na">getServletRequest</span><span class="o">()</span> <span class="k">instanceof</span> <span class="nc">HttpServletRequest</span><span class="o">))</span> <span class="o">{</span>
+			<span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalArgumentException</span><span class="o">(</span>
+					<span class="s">"Request is not an HttpServletRequest: "</span> <span class="o">+</span> <span class="n">requestEvent</span><span class="o">.</span><span class="na">getServletRequest</span><span class="o">());</span>
+		<span class="o">}</span>
+		<span class="nc">HttpServletRequest</span> <span class="n">request</span> <span class="o">=</span> <span class="o">(</span><span class="nc">HttpServletRequest</span><span class="o">)</span> <span class="n">requestEvent</span><span class="o">.</span><span class="na">getServletRequest</span><span class="o">();</span>
+		<span class="nc">ServletRequestAttributes</span> <span class="n">attributes</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ServletRequestAttributes</span><span class="o">(</span><span class="n">request</span><span class="o">);</span>
+		<span class="n">request</span><span class="o">.</span><span class="na">setAttribute</span><span class="o">(</span><span class="no">REQUEST_ATTRIBUTES_ATTRIBUTE</span><span class="o">,</span> <span class="n">attributes</span><span class="o">);</span>
+		<span class="nc">LocaleContextHolder</span><span class="o">.</span><span class="na">setLocale</span><span class="o">(</span><span class="n">request</span><span class="o">.</span><span class="na">getLocale</span><span class="o">());</span>
+		<span class="nc">RequestContextHolder</span><span class="o">.</span><span class="na">setRequestAttributes</span><span class="o">(</span><span class="n">attributes</span><span class="o">);</span>
+	<span class="o">}</span>
+
+	<span class="nd">@Override</span>
+	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">requestDestroyed</span><span class="o">(</span><span class="nc">ServletRequestEvent</span> <span class="n">requestEvent</span><span class="o">)</span> <span class="o">{</span>
+		<span class="nc">ServletRequestAttributes</span> <span class="n">attributes</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+		<span class="nc">Object</span> <span class="n">reqAttr</span> <span class="o">=</span> <span class="n">requestEvent</span><span class="o">.</span><span class="na">getServletRequest</span><span class="o">().</span><span class="na">getAttribute</span><span class="o">(</span><span class="no">REQUEST_ATTRIBUTES_ATTRIBUTE</span><span class="o">);</span>
+		<span class="k">if</span> <span class="o">(</span><span class="n">reqAttr</span> <span class="k">instanceof</span> <span class="nc">ServletRequestAttributes</span><span class="o">)</span> <span class="o">{</span>
+			<span class="n">attributes</span> <span class="o">=</span> <span class="o">(</span><span class="nc">ServletRequestAttributes</span><span class="o">)</span> <span class="n">reqAttr</span><span class="o">;</span>
+		<span class="o">}</span>
+		<span class="nc">RequestAttributes</span> <span class="n">threadAttributes</span> <span class="o">=</span> <span class="nc">RequestContextHolder</span><span class="o">.</span><span class="na">getRequestAttributes</span><span class="o">();</span>
+		<span class="k">if</span> <span class="o">(</span><span class="n">threadAttributes</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+			<span class="c1">// We're assumably within the original request thread...</span>
+			<span class="nc">LocaleContextHolder</span><span class="o">.</span><span class="na">resetLocaleContext</span><span class="o">();</span>
+			<span class="nc">RequestContextHolder</span><span class="o">.</span><span class="na">resetRequestAttributes</span><span class="o">();</span>
+			<span class="k">if</span> <span class="o">(</span><span class="n">attributes</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">threadAttributes</span> <span class="k">instanceof</span> <span class="nc">ServletRequestAttributes</span><span class="o">)</span> <span class="o">{</span>
+				<span class="n">attributes</span> <span class="o">=</span> <span class="o">(</span><span class="nc">ServletRequestAttributes</span><span class="o">)</span> <span class="n">threadAttributes</span><span class="o">;</span>
+			<span class="o">}</span>
+		<span class="o">}</span>
+		<span class="k">if</span> <span class="o">(</span><span class="n">attributes</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+			<span class="n">attributes</span><span class="o">.</span><span class="na">requestCompleted</span><span class="o">();</span>
+		<span class="o">}</span>
+	<span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre></div></div> <p>通过上面方式，使用ThreadLocal实现了请求上下文信息的绑定和销毁。</p> <h2 id="threadlocal">ThreadLocal</h2> <p>绑定在线程上的map，使用方式类似HashMap</p> <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">set</span><span class="o">(</span><span class="no">T</span> <span class="n">value</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">Thread</span> <span class="n">t</span> <span class="o">=</span> <span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">();</span>
+        <span class="nc">ThreadLocalMap</span> <span class="n">map</span> <span class="o">=</span> <span class="n">getMap</span><span class="o">(</span><span class="n">t</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">map</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+            <span class="n">map</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">value</span><span class="o">);</span>
+        <span class="k">else</span>
+            <span class="nf">createMap</span><span class="o">(</span><span class="n">t</span><span class="o">,</span> <span class="n">value</span><span class="o">);</span>
+    <span class="o">}</span>
+    
+     <span class="kd">public</span> <span class="kt">void</span> <span class="nf">remove</span><span class="o">()</span> <span class="o">{</span>
+         <span class="nc">ThreadLocalMap</span> <span class="n">m</span> <span class="o">=</span> <span class="n">getMap</span><span class="o">(</span><span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">());</span>
+         <span class="k">if</span> <span class="o">(</span><span class="n">m</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+             <span class="n">m</span><span class="o">.</span><span class="na">remove</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+     <span class="o">}</span>
+     
+     <span class="kd">public</span> <span class="no">T</span> <span class="nf">get</span><span class="o">()</span> <span class="o">{</span>
+             <span class="nc">Thread</span> <span class="n">t</span> <span class="o">=</span> <span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">();</span>
+             <span class="nc">ThreadLocalMap</span> <span class="n">map</span> <span class="o">=</span> <span class="n">getMap</span><span class="o">(</span><span class="n">t</span><span class="o">);</span>
+             <span class="k">if</span> <span class="o">(</span><span class="n">map</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                 <span class="nc">ThreadLocalMap</span><span class="o">.</span><span class="na">Entry</span> <span class="n">e</span> <span class="o">=</span> <span class="n">map</span><span class="o">.</span><span class="na">getEntry</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+                 <span class="k">if</span> <span class="o">(</span><span class="n">e</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                     <span class="nd">@SuppressWarnings</span><span class="o">(</span><span class="s">"unchecked"</span><span class="o">)</span>
+                     <span class="no">T</span> <span class="n">result</span> <span class="o">=</span> <span class="o">(</span><span class="no">T</span><span class="o">)</span><span class="n">e</span><span class="o">.</span><span class="na">value</span><span class="o">;</span>
+                     <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+                 <span class="o">}</span>
+             <span class="o">}</span>
+             <span class="k">return</span> <span class="nf">setInitialValue</span><span class="o">();</span>
+     <span class="o">}</span>
+</code></pre></div></div> <p>Thread上绑定的ThreadLocalMap： java.lang.Thread#threadLocals</p> <h2 id="inheritablethreadlocal">InheritableThreadLocal</h2> <p>绑定在线程上的继承的ThreadLocalMap，Spring中的RequestContextHolder也是依靠他来实现请求上下文信息的线程上的继承。</p> <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="cm">/**
+     * Get the map associated with a ThreadLocal.
+     *
+     * @param t the current thread
+     */</span>
+    <span class="nc">ThreadLocalMap</span> <span class="nf">getMap</span><span class="o">(</span><span class="nc">Thread</span> <span class="n">t</span><span class="o">)</span> <span class="o">{</span>
+       <span class="k">return</span> <span class="n">t</span><span class="o">.</span><span class="na">inheritableThreadLocals</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+     * Create the map associated with a ThreadLocal.
+     *
+     * @param t the current thread
+     * @param firstValue value for the initial entry of the table.
+     */</span>
+    <span class="kt">void</span> <span class="nf">createMap</span><span class="o">(</span><span class="nc">Thread</span> <span class="n">t</span><span class="o">,</span> <span class="no">T</span> <span class="n">firstValue</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">t</span><span class="o">.</span><span class="na">inheritableThreadLocals</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ThreadLocalMap</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">firstValue</span><span class="o">);</span>
+    <span class="o">}</span>
+</code></pre></div></div> <p>Thread上绑定的inheritableThreadLocals： java.lang.Thread#inheritableThreadLocals，在线程创建的时候会当前线程的inheritableThreadLocals赋值给子线程，具体位置可查看Thread的构造函数。</p> <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">private</span> <span class="kt">void</span> <span class="nf">init</span><span class="o">(</span><span class="nc">ThreadGroup</span> <span class="n">g</span><span class="o">,</span> <span class="nc">Runnable</span> <span class="n">target</span><span class="o">,</span> <span class="nc">String</span> <span class="n">name</span><span class="o">,</span>
+                      <span class="kt">long</span> <span class="n">stackSize</span><span class="o">,</span> <span class="nc">AccessControlContext</span> <span class="n">acc</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">name</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">NullPointerException</span><span class="o">(</span><span class="s">"name cannot be null"</span><span class="o">);</span>
+        <span class="o">}</span>
+
+        <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+
+        <span class="nc">Thread</span> <span class="n">parent</span> <span class="o">=</span> <span class="n">currentThread</span><span class="o">();</span>
+        <span class="nc">SecurityManager</span> <span class="n">security</span> <span class="o">=</span> <span class="nc">System</span><span class="o">.</span><span class="na">getSecurityManager</span><span class="o">();</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">g</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="cm">/* Determine if it's an applet or not */</span>
+
+            <span class="cm">/* If there is a security manager, ask the security manager
+               what to do. */</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">security</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">g</span> <span class="o">=</span> <span class="n">security</span><span class="o">.</span><span class="na">getThreadGroup</span><span class="o">();</span>
+            <span class="o">}</span>
+
+            <span class="cm">/* If the security doesn't have a strong opinion of the matter
+               use the parent thread group. */</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">g</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">g</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="na">getThreadGroup</span><span class="o">();</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+
+        <span class="cm">/* checkAccess regardless of whether or not threadgroup is
+           explicitly passed in. */</span>
+        <span class="n">g</span><span class="o">.</span><span class="na">checkAccess</span><span class="o">();</span>
+
+        <span class="cm">/*
+         * Do we have the required permissions?
+         */</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">security</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">isCCLOverridden</span><span class="o">(</span><span class="n">getClass</span><span class="o">()))</span> <span class="o">{</span>
+                <span class="n">security</span><span class="o">.</span><span class="na">checkPermission</span><span class="o">(</span><span class="no">SUBCLASS_IMPLEMENTATION_PERMISSION</span><span class="o">);</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+
+        <span class="n">g</span><span class="o">.</span><span class="na">addUnstarted</span><span class="o">();</span>
+
+        <span class="k">this</span><span class="o">.</span><span class="na">group</span> <span class="o">=</span> <span class="n">g</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">daemon</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="na">isDaemon</span><span class="o">();</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">priority</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="na">getPriority</span><span class="o">();</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">security</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="n">isCCLOverridden</span><span class="o">(</span><span class="n">parent</span><span class="o">.</span><span class="na">getClass</span><span class="o">()))</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">contextClassLoader</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="na">getContextClassLoader</span><span class="o">();</span>
+        <span class="k">else</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">contextClassLoader</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="na">contextClassLoader</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">inheritedAccessControlContext</span> <span class="o">=</span>
+                <span class="n">acc</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">?</span> <span class="n">acc</span> <span class="o">:</span> <span class="nc">AccessController</span><span class="o">.</span><span class="na">getContext</span><span class="o">();</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">target</span> <span class="o">=</span> <span class="n">target</span><span class="o">;</span>
+        <span class="n">setPriority</span><span class="o">(</span><span class="n">priority</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">parent</span><span class="o">.</span><span class="na">inheritableThreadLocals</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">inheritableThreadLocals</span> <span class="o">=</span>
+                <span class="nc">ThreadLocal</span><span class="o">.</span><span class="na">createInheritedMap</span><span class="o">(</span><span class="n">parent</span><span class="o">.</span><span class="na">inheritableThreadLocals</span><span class="o">);</span>
+        <span class="cm">/* Stash the specified stack size in case the VM cares */</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">stackSize</span> <span class="o">=</span> <span class="n">stackSize</span><span class="o">;</span>
+
+        <span class="cm">/* Set thread ID */</span>
+        <span class="n">tid</span> <span class="o">=</span> <span class="n">nextThreadID</span><span class="o">();</span>
+    <span class="o">}</span>
+</code></pre></div></div> <h3 id="inheritablethreadlocal补充">InheritableThreadLocal补充</h3> <p>InheritableThreadLocal允许自定义子线程可继承的值，默认为可继承，开发人员可通过覆盖<code class="language-plaintext highlighter-rouge">java.lang.InheritableThreadLocal#childValue</code>方法来改变InheritableThreadLocal继承的行为。</p> </div> <div class="entry-meta"> <br> <hr> <script src="https://apps.bdimg.com/libs/jquery/1.8.2/jquery.js"></script> <script src="//justice-love.com/assets/js/jquery.share.min.js"></script> <span class="entry-tags"><a href="//justice-love.com/tags/#spring" title="Pages tagged spring" class="tag"><span class="term">spring</span></a><a href="//justice-love.com/tags/#threadLocal" title="Pages tagged threadLocal" class="tag"><span class="term">threadLocal</span></a><a href="//justice-love.com/tags/#RequestContextHolder" title="Pages tagged RequestContextHolder" class="tag"><span class="term">RequestContextHolder</span></a></span> <div id="share-china"></div> <div style="clear:both"></div> <script> $('#share-china').share({sites: ['qzone', 'weibo','wechat', 'facebook', 'twitter']}); </script> </div> </div> </div> <section id="disqus_thread" class="animated fadeInUp"> <div id="gitalk-container"></div> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css"> <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script> <script type="text/javascript"> var id = document.URL; if (id.indexOf('?') > 0) { id = id.substr(0, id.indexOf('?')); } const gitalk = new Gitalk({ clientID: '94ea015a2463191dc163', clientSecret: '5fba2b9dc7bf84584dd7a7d8d070e3c0e9d260bf', accessToken: '5facc6f1b9b0e6f0e66e986ba01423102f89d5c7', repo: 'blog-comments', owner: 'Justice-love', admin: ['Justice-love'], distractionFreeMode: false, labels: ['comments'], title: '从RequestContextHolder到ThreadLocal', id: id, proxy: 'https://proxy.justice-love.com/https://github.com/login/oauth/access_token' }); gitalk.render('gitalk-container'); </script> </section> </header> <!-- JS --> <script src="//justice-love.com/assets/js/jquery-3.6.0.min.js"></script> <script src="//justice-love.com/assets/js/jquery.dlmenu.min.js"></script> <script src="//justice-love.com/assets/js/jquery.goup.min.js"></script> <script src="//justice-love.com/assets/js/jquery.magnific-popup.min.js"></script> <script src="//justice-love.com/assets/js/jquery.fitvid.min.js"></script> <script src="//justice-love.com/assets/js/scripts.js"></script> <script src="//justice-love.com/assets/js/clipboard.min.js"></script> <!-- MathJax --> <script async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script> </body> </html>
