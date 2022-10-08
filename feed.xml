@@ -1,4 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.0">Jekyll</generator><link href="//justice-love.com/feed.xml" rel="self" type="application/atom+xml" /><link href="//justice-love.com/" rel="alternate" type="text/html" /><updated>2022-09-30T17:14:09+08:00</updated><id>//justice-love.com/feed.xml</id><title type="html">轶 &amp;amp; 霄</title><subtitle>我们的小窝</subtitle><entry><title type="html">我爱祖国</title><link href="//justice-love.com/yanyan257/" rel="alternate" type="text/html" title="我爱祖国" /><published>2022-09-30T00:00:00+08:00</published><updated>2022-09-30T00:00:00+08:00</updated><id>//justice-love.com/yanyan257</id><content type="html" xml:base="//justice-love.com/yanyan257/">&lt;p class=&quot;notice&quot;&gt;朗诵«我爱祖国»&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.0">Jekyll</generator><link href="//justice-love.com/feed.xml" rel="self" type="application/atom+xml" /><link href="//justice-love.com/" rel="alternate" type="text/html" /><updated>2022-10-08T10:52:33+08:00</updated><id>//justice-love.com/feed.xml</id><title type="html">轶 &amp;amp; 霄</title><subtitle>我们的小窝</subtitle><entry><title type="html">艾莎公主脸绘</title><link href="//justice-love.com/yanyan258/" rel="alternate" type="text/html" title="艾莎公主脸绘" /><published>2022-10-08T00:00:00+08:00</published><updated>2022-10-08T00:00:00+08:00</updated><id>//justice-love.com/yanyan258</id><content type="html" xml:base="//justice-love.com/yanyan258/">&lt;p class=&quot;notice&quot;&gt;国庆节在大悦城奈尔宝玩, 画的艾莎公主的脸绘&lt;/p&gt;
+&lt;figure&gt;
+    &lt;img src=&quot;//cdn.justice-love.com/yanyan/image/aishagongzhulianhui.jpeg&quot; /&gt;
+&lt;/figure&gt;</content><author><name></name></author><category term="徐晓妍" /><summary type="html">妍妍的日记-258</summary></entry><entry><title type="html">我爱祖国</title><link href="//justice-love.com/yanyan257/" rel="alternate" type="text/html" title="我爱祖国" /><published>2022-09-30T00:00:00+08:00</published><updated>2022-09-30T00:00:00+08:00</updated><id>//justice-love.com/yanyan257</id><content type="html" xml:base="//justice-love.com/yanyan257/">&lt;p class=&quot;notice&quot;&gt;朗诵«我爱祖国»&lt;/p&gt;
 &lt;video id=&quot;my-video&quot; class=&quot;video-js vjs-16-9 clipboard&quot; controls=&quot;&quot; preload=&quot;auto&quot; width=&quot;722&quot; height=&quot;264&quot; data-setup=&quot;{}&quot;&gt;
     &lt;source src=&quot;//cdn.justice-love.com/yanyan/video/woaizuguolangsong.mp4&quot; type=&quot;video/mp4&quot; /&gt;
     &lt;p class=&quot;vjs-no-js&quot;&gt;
@@ -45,11 +48,4 @@
         To view this video please enable JavaScript, and consider upgrading to a web browser that
         &lt;a href=&quot;http://videojs.com/html5-video-support/&quot; target=&quot;_blank&quot;&gt;supports HTML5 video&lt;/a&gt;
     &lt;/p&gt;
-&lt;/video&gt;</content><author><name></name></author><category term="小小舒" /><summary type="html">小小舒日记-4</summary></entry><entry><title type="html">带着情绪打卡</title><link href="//justice-love.com/yanyan254/" rel="alternate" type="text/html" title="带着情绪打卡" /><published>2022-09-20T00:00:00+08:00</published><updated>2022-09-20T00:00:00+08:00</updated><id>//justice-love.com/yanyan254</id><content type="html" xml:base="//justice-love.com/yanyan254/">&lt;p class=&quot;notice&quot;&gt;带着情绪打卡汤姆之家的英语作业&lt;/p&gt;
-&lt;video id=&quot;my-video&quot; class=&quot;video-js vjs-16-9 clipboard&quot; controls=&quot;&quot; preload=&quot;auto&quot; width=&quot;722&quot; height=&quot;264&quot; data-setup=&quot;{}&quot;&gt;
-    &lt;source src=&quot;//cdn.justice-love.com/yanyan/video/daiqingxule.mp4&quot; type=&quot;video/mp4&quot; /&gt;
-    &lt;p class=&quot;vjs-no-js&quot;&gt;
-        To view this video please enable JavaScript, and consider upgrading to a web browser that
-        &lt;a href=&quot;http://videojs.com/html5-video-support/&quot; target=&quot;_blank&quot;&gt;supports HTML5 video&lt;/a&gt;
-    &lt;/p&gt;
-&lt;/video&gt;</content><author><name></name></author><category term="徐晓妍" /><summary type="html">妍妍的日记-254</summary></entry></feed>
+&lt;/video&gt;</content><author><name></name></author><category term="小小舒" /><summary type="html">小小舒日记-4</summary></entry></feed>
